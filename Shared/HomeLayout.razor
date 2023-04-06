@@ -1,0 +1,33 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>FinalYearProjectPortal</PageTitle>
+<MudThemeProvider Theme="_myTheme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+<MudAppBar Bottom="true" Fixed="false" Color="Color.Transparent">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Style="width: 100%">
+        <MudButton>About</MudButton>
+        <MudButton>GitHub</MudButton>
+    </MudStack>
+</MudAppBar>
+
+@code {
+
+    readonly MudTheme _myTheme = new()
+    {
+        Palette = new Palette
+        {
+            Primary = Colors.Green.Darken1,
+            Secondary = Colors.Purple.Darken1,
+            Tertiary = Colors.LightBlue.Default
+        }
+    };
+
+}

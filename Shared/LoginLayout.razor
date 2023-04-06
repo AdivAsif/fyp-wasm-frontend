@@ -1,0 +1,57 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@using FinalYearProjectWasmPortal.Services
+@using System.Security.Claims
+@inherits LayoutComponentBase
+
+<PageTitle>MoonlitMind - Login</PageTitle>
+<MudThemeProvider Theme="_myTheme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<CascadingValue Value="UserInfo">
+    <MudLayout>
+        <MudMainContent Style="height: 100vh">
+            @Body
+        </MudMainContent>
+    </MudLayout>
+</CascadingValue>
+
+<MudAppBar Bottom="true" Fixed="false" Color="Color.Transparent">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Style="width: 100%">
+        <MudButton>About</MudButton>
+        <MudButton>GitHub</MudButton>
+    </MudStack>
+</MudAppBar>
+
+@code {
+
+    private async Task Authenticate()
+    {
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var identity = (ClaimsIdentity)authenticationState.User.Identity!;
+        if (identity.IsAuthenticated)
+            UserInfo = new UserInfo(authenticationState);
+        else
+            NavigationManager.ToAbsoluteUri("/Login");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Authenticate();
+        StateHasChanged();
+    }
+
+    public UserInfo? UserInfo;
+
+    readonly MudTheme _myTheme = new()
+    {
+        Palette = new Palette
+        {
+            Primary = Colors.Green.Darken1,
+            Secondary = Colors.Purple.Darken1,
+            Tertiary = Colors.LightBlue.Default
+        }
+    };
+
+}

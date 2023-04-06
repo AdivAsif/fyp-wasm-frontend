@@ -1,0 +1,44 @@
+﻿@using Fyp.API
+@using FinalYearProjectWasmPortal.Services
+@inherits ChatComponentBase
+@inject IChatClient ChatClient
+
+<MudPaper Class="pa-4">
+    <MudList Clickable="true" @bind-SelectedItem="_selectedItem" @bind-SelectedValue="_selectedValue">
+        <MudListSubheader>
+            Chat History
+        </MudListSubheader>
+        <MudListItem Text="Test" Value="1"/>
+        @if (Main != null && Main.ChatRooms.Data.Any())
+        {
+            @foreach (var room in Main.ChatRooms.Data.ToList())
+            {
+                <MudListItem T="@room" Text="@room.Name" Avatar="@room.User.ProfilePictureUrl" OnClick="@(async () => await HandleChatSelect(room))"/>
+            }
+        }
+    </MudList>
+    <MudPagination Color="Color.Primary" Class="d-flex justify-content-center"></MudPagination>
+</MudPaper>
+
+@code {
+
+    private async Task HandleChatSelect(ChatRoomDto room)
+    {
+        _selectedValue = room;
+        await OnRoomSelect.InvokeAsync(room.Id);
+        StateHasChanged();
+    }
+
+    [Parameter]
+    public EventCallback<Guid> OnRoomSelect { get; set; }
+
+    [Parameter]
+    public EventCallback LoadMoreChatRooms { get; set; }
+
+    [CascadingParameter]
+    public UserInfo? UserInfo { get; set; }
+
+    private MudListItem? _selectedItem = new();
+    private object _selectedValue = 1;
+
+}

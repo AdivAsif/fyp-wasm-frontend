@@ -1,0 +1,30 @@
+﻿@using FinalYearProjectWasmPortal.Services
+<MudPaper Class="pa-4">
+    <MudGrid Class="position-relative">
+        <MudImage Src="@UserInfo?.ProfilePicture" Class="profile-backdrop"></MudImage>
+        <MudItem xs="3"></MudItem>
+        <MudItem xs="6" Class="d-flex justify-content-center">
+            <div class="profile-avatar-container">
+                <MudAvatar Color="Color.Primary" Style="width: 200px; height: 200px">
+                    @if (!string.IsNullOrWhiteSpace(UserInfo?.ProfilePicture))
+                    {
+                        <MudImage Src="@(UserInfo.ProfilePicture)"></MudImage>
+                    }
+                    else
+                    {
+                        @UserInfo?.Username[0]
+                    }
+                </MudAvatar>
+            </div>
+        </MudItem>
+        <MudItem xs="3">
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+
+    [CascadingParameter]
+    public UserInfo? UserInfo { get; set; }
+
+}

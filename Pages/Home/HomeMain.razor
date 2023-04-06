@@ -1,0 +1,62 @@
+﻿@page "/"
+@using Fyp.API
+@inject IUsersClient UsersClient
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+@layout HomeLayout
+
+<PageTitle>Index</PageTitle>
+
+<MudAppBar Style="background-color: #ffffff" Fixed="true">
+    <MudIconButton Color="Color.Secondary" Variant="Variant.Filled" Edge="Edge.Start">
+        <MudImage Src="icon.png" ObjectFit="ObjectFit.Contain" Width="30"/>
+    </MudIconButton>
+    <MudCardHeader Class="login-link" Style="font-size: 20px">MoonlitMind</MudCardHeader>
+    <MudSpacer/>
+    <MudTooltip Text="Click to Login or Register" Placement="Placement.Left" Color="Color.Secondary">
+        <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Dark" @onclick="GoToLogin"/>
+    </MudTooltip>
+</MudAppBar>
+
+<MudCarousel Style="height: 94vh; width: 100%" ShowArrows="@_arrows" ShowBullets="@_bullets" EnableSwipeGesture="@_enableSwipeGesture"
+             AutoCycle="@_autocycle" TData="object">
+    <MudCarouselItem Transition="_transition" Color="@Color.Primary">
+        <div class="d-flex" style="height: 100%;">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large"/>
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="_transition" Color="@Color.Secondary">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large"/>
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="_transition" Color="Color.Tertiary">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Color="@Color.Primary" Size="@Size.Large"/>
+        </div>
+    </MudCarouselItem>
+</MudCarousel>
+
+@code {
+
+    private readonly bool _arrows = true;
+    private readonly bool _bullets = true;
+    private readonly bool _enableSwipeGesture = true;
+    private readonly bool _autocycle = true;
+    private readonly Transition _transition = Transition.Slide;
+
+    private List<UserDto> _allUsers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var listOfAllUsersAsync = await UsersClient.GetListOfAllUsersAsync();
+        _allUsers = listOfAllUsersAsync.ToList();
+        StateHasChanged();
+    }
+
+    private void GoToLogin()
+    {
+        NavigationManager.NavigateTo("/Login", true);
+    }
+
+}

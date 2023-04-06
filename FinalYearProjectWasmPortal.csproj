@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Configurations>Debug;Release;API</Configurations>
+        <PublishIISAssets>true</PublishIISAssets>
+    </PropertyGroup>
+
+    <Target Name="NSwag" Outputs="@(OutputFiles)" Condition="'$(Configuration)' == 'API'" BeforeTargets="BeforeBuild">
+        <Exec Command="$(NSwagExe_Net70) run API/NswagConfig/fyp-client-config.nswag"/>
+        <Exec Command="cd API &amp;&amp; cat FypAPI.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAPI.cs"/>
+    </Target>
+
+    <ItemGroup>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.3.0"/>
+        <PackageReference Include="Blazored.Modal" Version="7.1.0"/>
+        <PackageReference Include="Blazored.Typeahead" Version="4.7.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="8.0.0-preview.3.23177.8"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0-preview.3.23177.8"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0-preview.3.23174.8"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0-preview.3.23174.8"/>
+        <PackageReference Include="MudBlazor" Version="6.2.2"/>
+        <PackageReference Include="NSwag.ApiDescription.Client" Version="13.18.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NSwag.MSBuild" Version="13.18.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NSwag.SwaggerGeneration" Version="12.3.0"/>
+        <PackageReference Include="Polly" Version="7.2.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0-preview.3.23177.8"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0-preview.3.23177.8" PrivateAssets="all"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.29.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Middleware\"/>
+        <Folder Include="Pages\Admin\"/>
+        <Folder Include="Pages\Blog\"/>
+        <Folder Include="Pages\Settings\"/>
+    </ItemGroup>
+
+</Project>

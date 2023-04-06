@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33513.286
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalYearProjectWasmPortal", "FinalYearProjectWasmPortal.csproj", "{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		API|Any CPU = API|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}.Debug|Any CPU.ActiveCfg = API|Any CPU
+		{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}.Debug|Any CPU.Build.0 = API|Any CPU
+		{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}.API|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF08B86A-27B8-45AA-A06C-0A02A1F4C785}.API|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8CFF2BB2-2917-4E91-903E-953CED6E5195}
+	EndGlobalSection
+EndGlobal

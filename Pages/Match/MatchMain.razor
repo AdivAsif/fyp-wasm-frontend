@@ -1,0 +1,21 @@
+@page "/Match"
+@inject IAuthClient AuthClient
+@inject IProfileClient ProfileClient
+@using FinalYearProjectWasmPortal.Services
+@using Fyp.API
+
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+    [CascadingParameter]
+    public UserInfo? UserInfo { get; set; }
+    
+    private ProfileDetailsDto? Profile { get; set; }
+
+}
