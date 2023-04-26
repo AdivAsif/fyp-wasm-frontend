@@ -1,0 +1,95 @@
+@using Fyp.API
+@using FinalYearProjectWasmPortal.Helpers
+@inject NavigationManager NavigationManager
+@inject IMatchingClient MatchingClient
+@inherits MatchModalBase
+
+<div class="modal modal-backdrop modal-background" role="dialog" style="padding: 0; display: @ModalDisplay;">
+    <div style="height: 100%; width: 100%; position: absolute" @onclick="Close"></div>
+    <div class="modal-dialog modal-sm" style="display: table; vertical-align: middle">
+        <MudPaper Class="modal-content" Style="border-radius: 13px; padding: 13px; height: 80%; width: 60vw;">
+            @if (IsLoading)
+            {
+                <MudGrid>
+                    <MudItem xs="12" sm="12">
+                        <MudPaper Class="pa-4 m-4" Style="text-align: center">
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            }
+            else
+            {
+                <div class="modal-header">
+                    <h3 class="modal-title">@ModalTitle</h3>
+                    <a class="ml-auto modal-close" @onclick="Close">
+                        &#10006;
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <MudContainer Class="row">
+                        <MudGrid>
+                            <MudItem xs="12" sm="12">
+                                <MudPaper Class="pa-4">
+                                    <div class="d-flex align-center justify-space-between flex-column">
+                                        <MudCardHeader>
+                                            Enter your first message to send them!
+                                        </MudCardHeader>
+                                    </div>
+                                    <MudForm @ref="_form" @bind-IsValid="_success">
+                                        <MudTextField T="string" Label="Message" Required="true"
+                                                      RequiredError="Enter a valid message." ErrorText="Message is required."
+                                                      @bind-Value="Message.Content" HelperTextOnFocus="true" HelperText="Send your first message!"/>
+                                        <div class="d-flex align-center justify-content-center">
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                                       Disabled="@(!_success || _matching)" @onclick="MatchUser"
+                                                       Class="text-center">
+                                                Match with @Match?.FirstName!
+                                            </MudButton>
+                                        </div>
+                                    </MudForm>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudContainer>
+                </div>
+            }
+        </MudPaper>
+    </div>
+</div>
+
+@code {
+
+    public async Task Initialise(UserDto match)
+    {
+        Match = match;
+        ModalTitle = $"Match with {Match.Username}?";
+        StateHasChanged();
+    }
+
+    private async Task MatchUser()
+    {
+        _matching = true;
+        try
+        {
+            var createdRoom = await MatchingClient.MatchUserAsync(Match?.Id, Message);
+            await DisplaySuccess("Matched with user, redirecting to chat room.");
+            NavigationManager.NavigateTo($"/Chat?{createdRoom.Data.Id}");
+        }
+        catch (APIException ex)
+        {
+            await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
+        }
+        finally
+        {
+            _matching = false;
+        }
+    }
+
+    private MudForm _form = new();
+    private bool _success;
+    private bool _matching;
+    private UserDto? Match { get; set; }
+    private ChatMessageDto? Message { get; set; } = new();
+
+}

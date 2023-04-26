@@ -8,12 +8,11 @@
         <MudListSubheader>
             Chat History
         </MudListSubheader>
-        <MudListItem Text="Test" Value="1"/>
         @if (Main != null && Main.ChatRooms.Data.Any())
         {
             @foreach (var room in Main.ChatRooms.Data.ToList())
             {
-                <MudListItem T="@room" Text="@room.Name" Avatar="@room.User.ProfilePictureUrl" OnClick="@(async () => await HandleChatSelect(room))"/>
+                <MudListItem T="@room" Text="@room.Name" Avatar="@room.ToUser.ProfileDetails.ProfilePictureUrl" OnClick="@(async () => await HandleChatSelect(room))"/>
             }
         }
     </MudList>

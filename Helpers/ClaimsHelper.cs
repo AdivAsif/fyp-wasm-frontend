@@ -74,10 +74,8 @@ public static class ClaimsHelper
                 var tokenResponse = await authClient.RefreshTokenAsync(refreshToken);
 
                 if (tokenResponse.Success)
-                {
                     await ((CustomAuthenticationStateProvider)authenticationStateProvider).SetAuthenticationStateAsync(
                         tokenResponse.Data);
-                }
             }
             catch (APIException ex)
             {

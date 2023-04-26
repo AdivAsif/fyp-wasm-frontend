@@ -8,9 +8,9 @@
 
     private static EventHandler? ModalOpened => null;
 
-    private static EventHandler? ModalClosed => null;
+    public static EventHandler? ModalClosed => null;
 
-    private bool _shouldRender;
+    public bool _shouldRender;
 
     protected override bool ShouldRender()
     {

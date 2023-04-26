@@ -1,0 +1,103 @@
+@using FinalYearProjectWasmPortal.Services
+@using Fyp.API
+@using FinalYearProjectWasmPortal.Helpers
+@inherits MatchModalBase
+@inject ProfileStateService ProfileStateService
+@inject IProfileClient ProfileClient
+
+<div class="modal modal-backdrop modal-background" role="dialog" style="padding: 0; display: @ModalDisplay;">
+    <div style="height: 100%; width: 100%; position: absolute" @onclick="Close"></div>
+    <div class="modal-dialog modal-sm" style="display: table; vertical-align: middle">
+        <div class="modal-content" style="border-radius: 13px; padding: 13px; height: 80%; width: 60vw;">
+            @if (IsLoading)
+            {
+                <MudGrid>
+                    <MudItem xs="12" sm="12">
+                        <MudPaper Class="pa-4 m-4" Style="text-align: center">
+                            <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            }
+            else
+            {
+                <div class="modal-header">
+                    <h3 class="modal-title">@ModalTitle</h3>
+                    <a class="ml-auto modal-close" @onclick="Close">
+                        &#10006;
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <MudContainer Class="row">
+                        <MudGrid>
+                            <MudItem xs="12" sm="12">
+                                <MudPaper Class="pa-4">
+                                    <div class="d-flex align-center justify-space-between flex-column">
+                                        <MudCardHeader>
+                                            Enter your current mood
+                                        </MudCardHeader>
+                                    </div>
+                                    <MudForm @ref="_form" @bind-IsValid="_success">
+                                        @if (Main?.ProfileInfo?.ProfileDetails != null)
+                                        {
+                                            <MudSelect T="string" Label="Mood" AnchorOrigin="Origin.TopCenter" @bind-Value="Main.ProfileInfo.ProfileDetails.Mood">
+                                                @foreach (var mood in Constants.Moods)
+                                                {
+                                                    <MudSelectItem Value="@(mood.Key)"/>
+                                                    <MudSelectItem Value="@(mood.Value)"/>
+                                                }
+                                            </MudSelect>
+                                        }
+                                        <div class="d-flex align-center justify-content-center">
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                                       Disabled="@(!_success)" @onclick="HandleMoodSet"
+                                                       Class="text-center">
+                                                Set mood
+                                            </MudButton>
+                                        </div>
+                                    </MudForm>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudContainer>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+    public async Task Initialise()
+    {
+        ModalTitle = "Set your mood";
+        StateHasChanged();
+    }
+
+    private async Task HandleMoodSet()
+    {
+        try
+        {
+            Main.ProfileInfo.ProfileDetails.MoodSet = DateTimeOffset.Now;
+            await ProfileClient.CreateOrUpdateProfileDetailsAsync(Main.ProfileInfo.ProfileDetails);
+            await DisplaySuccess("Mood successfully set.");
+        }
+        catch (APIException ex)
+        {
+            await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
+        }
+    }
+
+    private new async Task Close()
+    {
+        ModalDisplay = "none";
+        ModalClosed?.Invoke(this, EventArgs.Empty);
+        StateHasChanged();
+        _shouldRender = false;
+        await Main.GetMatches();
+    }
+
+    private bool _success;
+    private MudForm _form = new();
+
+}

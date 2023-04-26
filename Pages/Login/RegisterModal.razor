@@ -51,7 +51,7 @@
                                                       RequiredError="Repeat the password." HelperText="Repeat the password." InputType="InputType.Password"
                                                       HelperTextOnFocus="true" Validation="@(new Func<string, string>(PasswordMatch))"/>
                                         <div class="d-flex align-center justify-content-center">
-                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_success)"
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!_success || _registering)"
                                                        @onclick="RegisterUser" Class="text-center">
                                                 Register
                                             </MudButton>
@@ -77,6 +77,7 @@
 
     public async Task RegisterUser()
     {
+        _registering = true;
         try
         {
             var user = await AuthClient.CreateUserAsync(_userRegisterRequestDto);
@@ -101,6 +102,7 @@
         {
             await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
         }
+        _registering = false;
     }
 
     private IEnumerable<string> PasswordStrength(string pw)
@@ -124,6 +126,7 @@
     }
 
     private bool _success;
+    private bool _registering;
     private string[] _errors = { };
     private MudForm _form = new();
     private readonly UserRegisterRequestDto _userRegisterRequestDto = new();

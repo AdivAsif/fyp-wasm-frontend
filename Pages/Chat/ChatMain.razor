@@ -1,7 +1,9 @@
 ﻿@page "/Chat"
 @layout MainLayout
 @inject IChatClient ChatClient
+@inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ProfileStateService ProfileStateService
 @inject IConfiguration Configuration
 @inherits ChatComponentBase
 @using Microsoft.AspNetCore.SignalR.Client
@@ -33,7 +35,7 @@
                     <ChatRoomList OnRoomSelect="OnRoomSelect" LoadMoreChatRooms="LoadMoreChatRooms"></ChatRoomList>
                 </MudItem>
                 <MudItem xs="8">
-                    <ChatBody ListOfMessages="_listOfMessages" DbRefresh="RefreshDbPull"
+                    <ChatBody ListOfMessages="ListOfMessages" DbRefresh="RefreshDbPull"
                               ShowOlderMessages="GetOlderChatMessages" ToggleRoomList="ToggleRoomList"
                               ShowViewOlderMessages="ShowOlderMessages">
                     </ChatBody>
@@ -47,13 +49,28 @@
 
     protected override async Task OnInitializedAsync()
     {
+        StartLoading();
+        ProfileInfo = await ProfileStateService.GetProfileInfo();
+        if (ProfileInfo == null)
+            NavigationManager.NavigateTo("/Profile", true);
+
+
         await LoadChatRooms();
-        SelectedRoom = ChatRooms.Data.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query) && Guid.TryParse(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query[1..], out var parsedGuid))
+        {
+            RoomId = parsedGuid;
+            SelectedRoom = ChatRooms.Data.FirstOrDefault(r => r.Id == RoomId);
+        }
+        else
+        {
+            SelectedRoom = ChatRooms.Data.FirstOrDefault();
+        }
         if (SelectedRoom?.Id != null)
         {
             await GetMessagesForRoom(ChatMessageResultsPageAmount);
         }
         StateHasChanged();
+        StopLoading();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -85,19 +102,14 @@
                 {
                     destinationChatRoom.UpdatedAt = message.Timestamp;
 
-                    if (!string.IsNullOrEmpty(message.User.ProfilePictureUrl) && !message.User.ProfilePictureUrl.Contains("?sv="))
-                    {
-                        message.User.ProfilePictureUrl = $"{message.User.ProfilePictureUrl}{UserInfo?.SasToken}";
-                    }
-
-                    var existingMessage = _listOfMessages.FirstOrDefault(m => m.Id == message.Id);
+                    var existingMessage = ListOfMessages.FirstOrDefault(m => m.Id == message.Id);
                     if (existingMessage != null)
                     {
                         existingMessage = message;
                     }
                     else
                     {
-                        _listOfMessages.Add(message);
+                        ListOfMessages.Add(message);
                     }
                 }
                 else
@@ -112,7 +124,7 @@
                 var destinationChatRoom = ChatRooms.Data.FirstOrDefault(r => r.Id == messageRead.RoomId);
                 if (destinationChatRoom != null)
                 {
-                    var readMessage = _listOfMessages.FirstOrDefault(m => m.Id == messageRead.MessageId);
+                    var readMessage = ListOfMessages.FirstOrDefault(m => m.Id == messageRead.MessageId);
                     if (readMessage != null)
                         readMessage.ReadAt = messageRead.ReadAt;
                 }
@@ -193,7 +205,7 @@
                 ShowOlderMessages = true;
             }
             var messageResponse = await ChatClient.GetMessagesAsync(SelectedRoom?.Id, listOfAllMessages.Count, -noOfMessages);
-            _listOfMessages = messageResponse.Data.Data.ToList();
+            ListOfMessages = messageResponse.Data.Data.ToList();
         }
         catch (APIException ex)
         {
@@ -271,29 +283,23 @@
         _connection?.DisposeAsync();
     }
 
+    protected ChatBody ChatBody = new();
+
     [CascadingParameter]
     public UserInfo? UserInfo { get; set; }
 
-    protected ChatBody ChatBody = new();
+    public ProfileInfo? ProfileInfo { get; set; }
+    public TypingDto? IsTyping;
+    public ChatRoomDtoPagedResponse ChatRooms { get; set; } = new() { Data = new List<ChatRoomDto>() };
+    public bool HideRoomList;
+    public ChatRoomDto? SelectedRoom { get; set; }
+    public int ChatRoomPageSize = 20;
+    public int ChatRoomPage { get; set; } = 1;
+    public int ChatMessageResultsPageAmount { get; set; } = 10;
+    public Guid? RoomId { get; set; }
 
     private HubConnection? _connection;
-
-    public TypingDto? IsTyping;
-
-    public ChatRoomDtoPagedResponse ChatRooms { get; set; } = new() { Data = new List<ChatRoomDto>() };
-
-    private List<ChatMessageDto> _listOfMessages { get; set; } = new();
-
-    public bool HideRoomList;
-
     private bool ShowOlderMessages { get; set; }
-
-    public ChatRoomDto? SelectedRoom { get; set; }
-
-    public int ChatRoomPageSize = 20;
-
-    public int ChatRoomPage { get; set; } = 1;
-
-    public int ChatMessageResultsPageAmount { get; set; } = 10;
+    private List<ChatMessageDto> ListOfMessages { get; set; } = new();
 
 }

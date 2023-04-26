@@ -11,8 +11,6 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <CascadingValue Value="this">
-    <RegisterModal @ref="_registerModal"/>
-    <ForgotPasswordModal @ref="_forgotPasswordModal"/>
     <MudContainer>
         @if (IsLoading)
         {
@@ -26,6 +24,8 @@
         }
         else
         {
+            <RegisterModal @ref="_registerModal"/>
+            <ForgotPasswordModal @ref="_forgotPasswordModal"/>
             <MudGrid>
                 <MudItem xs="12" sm="12">
                     <MudPaper Class="pa-4 m-4">
@@ -41,7 +41,7 @@
                             <MudTextField T="string" Label="Password" @bind-Value="@_userLoginRequestDto.Password"
                                           Required="true" RequiredError="Password is required." ErrorText="Password is required." InputType="InputType.Password"/>
                             <div class="d-flex align-center justify-space-between flex-column">
-                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="@(!_success)"
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="@(!_success || _loggingIn)"
                                            @onclick="LoginUser" Class="text-center first-form-button">
                                     Login
                                 </MudButton>
@@ -90,6 +90,7 @@
 
     public async Task LoginUser()
     {
+        _loggingIn = true;
         try
         {
             var user = await AuthClient.LoginAsync(_userLoginRequestDto);
@@ -114,6 +115,7 @@
         {
             await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
         }
+        _loggingIn = false;
     }
 
     private bool _success;

@@ -1,18 +1,19 @@
-﻿@using FinalYearProjectWasmPortal.Services
+﻿@inherits ChatComponentBase
+
 <MudPaper Class="pa-4">
     <MudGrid Class="position-relative">
-        <MudImage Src="@UserInfo?.ProfilePicture" Class="profile-backdrop"></MudImage>
+        <MudImage Src="@Main?.ProfileInfo?.ProfileDetails?.BannerUrl" Alt="" Class="profile-backdrop"></MudImage>
         <MudItem xs="3"></MudItem>
         <MudItem xs="6" Class="d-flex justify-content-center">
             <div class="profile-avatar-container">
                 <MudAvatar Color="Color.Primary" Style="width: 200px; height: 200px">
-                    @if (!string.IsNullOrWhiteSpace(UserInfo?.ProfilePicture))
+                    @if (!string.IsNullOrWhiteSpace(Main?.ProfileInfo?.ProfileDetails?.ProfilePictureUrl))
                     {
-                        <MudImage Src="@(UserInfo.ProfilePicture)"></MudImage>
+                        <MudImage Src="@(Main?.ProfileInfo?.ProfileDetails?.ProfilePictureUrl)"></MudImage>
                     }
                     else
                     {
-                        @UserInfo?.Username[0]
+                        @Main?.UserInfo?.Username[0]
                     }
                 </MudAvatar>
             </div>
@@ -23,8 +24,5 @@
 </MudPaper>
 
 @code {
-
-    [CascadingParameter]
-    public UserInfo? UserInfo { get; set; }
 
 }

@@ -1,21 +1,222 @@
 @page "/Match"
 @inject IAuthClient AuthClient
 @inject IProfileClient ProfileClient
+@inject IMatchingClient MatchingClient
+@inject NavigationManager NavigationManager
+@inject ProfileStateService ProfileStateService
+@inherits MatchComponentBase
 @using FinalYearProjectWasmPortal.Services
 @using Fyp.API
+@using FinalYearProjectWasmPortal.Helpers
+@implements IDisposable
 
-
+<CascadingValue Value="this">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        @if (IsLoading)
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="12">
+                    <MudPaper Class="pa-4 m-4" Style="text-align: center">
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        }
+        else
+        {
+            <MoodModal @ref="_moodModal"></MoodModal>
+            <UserMatchModal @ref="_userMatchModal"></UserMatchModal>
+            <MudGrid>
+                @if (!Matches.Any())
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Info">No matches found, use existing chats or come back later.</MudAlert>
+                    </MudItem>
+                    <MudItem xs="4">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px"/>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudSkeleton Animation="Animation.Wave" Width="40%"/>
+                                    <MudSkeleton Animation="Animation.Wave" Width="60%"/>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="250px"/>
+                            <MudCardContent>
+                                <MudSkeleton Animation="Animation.Wave"/>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2"/>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2"/>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="4">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px"/>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudSkeleton Animation="Animation.Wave" Width="40%"/>
+                                    <MudSkeleton Animation="Animation.Wave" Width="60%"/>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="250px"/>
+                            <MudCardContent>
+                                <MudSkeleton Animation="Animation.Wave"/>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2"/>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2"/>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="4">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px"/>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudSkeleton Animation="Animation.Wave" Width="40%"/>
+                                    <MudSkeleton Animation="Animation.Wave" Width="60%"/>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="250px"/>
+                            <MudCardContent>
+                                <MudSkeleton Animation="Animation.Wave"/>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2"/>
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-3 mb-2"/>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                }
+                else
+                {
+                    @foreach (var match in Matches)
+                    {
+                        <MudItem xs="4">
+                            <MudCard Class="pa-4 position-relative custom-card" Style="height: 100%" @onclick="@(async () => await OpenUserMatchModal(match))">
+                                <MudCardHeader>
+                                    <MudGrid Class="position-relative">
+                                        <div class="d-flex justify-content-center profile-avatar-container profile-backdrop">
+                                            <MudImage Src="@(match.ProfileDetails?.BannerUrl)" Alt="" Class="profile-backdrop"></MudImage>
+                                        </div>
+                                        <MudItem xs="3"></MudItem>
+                                        <MudItem xs="6" Class="d-flex justify-content-center">
+                                            <div class="profile-avatar-container">
+                                                <MudAvatar Color="Color.Primary" Style="width: 200px; height: 200px">
+                                                    @if (!string.IsNullOrWhiteSpace(match.ProfileDetails?.ProfilePictureUrl))
+                                                    {
+                                                        <MudImage Src="@(match.ProfileDetails?.ProfilePictureUrl)" Alt=""></MudImage>
+                                                    }
+                                                    else
+                                                    {
+                                                        @UserInfo?.Username?[0]
+                                                    }
+                                                </MudAvatar>
+                                            </div>
+                                        </MudItem>
+                                        <MudItem xs="3"></MudItem>
+                                    </MudGrid>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudText Typo="Typo.h5">@match.Username</MudText>
+                                    <MudText Typo="Typo.body1">They are feeling: @match.ProfileDetails.Mood</MudText>
+                                    <MudText Typo="Typo.h6">Biography:</MudText>
+                                    <MudText Typo="Typo.body2">@match.ProfileDetails.Biography</MudText>
+                                    <MudText Typo="Typo.h6">Information:</MudText>
+                                    <MudText Typo="Typo.body2">@match.ProfileDetails.Gender - @match.ProfileDetails.Pronoun</MudText>
+                                    <MudText Typo="Typo.body2">@match.ProfileDetails.DateOfBirth.GetValueOrDefault().ToString("dd/MM/yyyy")</MudText>
+                                </MudCardContent>
+                                <MudCardActions Class="d-flex justify-content-center">
+                                    <MudButtonGroup Class="position-absolute" Style="bottom: 0">
+                                        <MudTooltip Placement="Placement.Top" Text="Match with this user">
+                                            <MudIconButton Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Default"
+                                                           OnClick="@(async () => await OpenUserMatchModal(match))"/>
+                                        </MudTooltip>
+                                        <MudTooltip Placement="Placement.Top" Text="Skip this user">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Cancel" Color="Color.Error"/>
+                                        </MudTooltip>
+                                    </MudButtonGroup>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                }
+            </MudGrid>
+        }
+    </MudContainer>
+</CascadingValue>
 
 @code {
 
     protected override async Task OnInitializedAsync()
     {
-        
+        StartLoading();
+        ProfileStateService.OnChange += StateHasChanged;
+        ProfileInfo = await ProfileStateService.GetProfileInfo();
+        if (ProfileInfo == null)
+        {
+            NavigationManager.NavigateTo("/Profile", true);
+        }
+        if (string.IsNullOrWhiteSpace(ProfileInfo?.ProfileDetails?.Mood) || (ProfileInfo.ProfileDetails.MoodSet.GetValueOrDefault() - DateTimeOffset.Now).Hours >= 24)
+        {
+            await OpenMoodModal();
+        }
+        else
+        {
+            await GetMatches();
+        }
+        StopLoading();
+    }
+
+    public async Task GetMatches()
+    {
+        try
+        {
+            var matches = await MatchingClient.GetMatchesAsync();
+            Matches = matches.Data.ToList();
+            StateHasChanged();
+            await DisplaySuccess("Matches found.");
+        }
+        catch (APIException ex)
+        {
+            await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
+        }
+    }
+
+    public void Dispose()
+    {
+        ProfileStateService.OnChange -= StateHasChanged;
+    }
+
+    private async Task OpenMoodModal()
+    {
+        _moodModal.Close();
+        await _moodModal.Initialise();
+        _moodModal.Open();
+    }
+
+    private async Task OpenUserMatchModal(UserDto user)
+    {
+        _userMatchModal.Close();
+        await _userMatchModal.Initialise(user);
+        _userMatchModal.Open();
     }
 
     [CascadingParameter]
     public UserInfo? UserInfo { get; set; }
-    
-    private ProfileDetailsDto? Profile { get; set; }
+
+    public List<UserDto> Matches { get; set; } = new();
+    public ProfileInfo? ProfileInfo { get; set; }
+
+    private MoodModal _moodModal = new();
+    private UserMatchModal _userMatchModal = new();
 
 }

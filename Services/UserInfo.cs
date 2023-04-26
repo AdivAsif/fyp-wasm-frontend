@@ -11,12 +11,9 @@ public class UserInfo
     {
         var jwtSecurityToken = ReadToken(authState);
 
-        var picture = ClaimsHelper.GetStringClaim(jwtSecurityToken, Constants.Claims.UserProfilePicture);
-        SasToken = ClaimsHelper.GetStringClaim(jwtSecurityToken, Constants.Claims.ProfileSasToken);
         UserId = int.Parse(ClaimsHelper.GetStringClaim(jwtSecurityToken, ClaimTypes.Sid));
         EmailAddress = ClaimsHelper.GetStringClaim(jwtSecurityToken, "email");
         SignUpDate = ClaimsHelper.GetStringClaim(jwtSecurityToken, Constants.Claims.UserSignUpDate);
-        ProfilePicture = string.IsNullOrEmpty(picture) ? string.Empty : $"{picture}{SasToken}";
         Firstname = ClaimsHelper.GetStringClaim(jwtSecurityToken, Constants.Claims.Firstname);
         Surname = ClaimsHelper.GetStringClaim(jwtSecurityToken, Constants.Claims.Surname);
         Username = ClaimsHelper.GetStringClaim(jwtSecurityToken, Constants.Claims.Username);
@@ -27,8 +24,6 @@ public class UserInfo
 
     public int UserId { get; init; }
     public string EmailAddress { get; init; }
-    public string ProfilePicture { get; init; }
-    public string SasToken { get; init; }
     public string Firstname { get; init; }
     public string Surname { get; init; }
     public string Username { get; init; }
