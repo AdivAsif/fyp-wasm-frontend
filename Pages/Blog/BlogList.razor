@@ -1,0 +1,48 @@
+﻿@using Fyp.API
+@inherits BlogComponentBase
+
+<MudPaper Class="pa-4">
+    <MudList Clickable="true" @bind-SelectedItem="_selectedItem" @bind-SelectedValue="_selectedValue">
+        <MudListSubheader>
+            Blogs
+        </MudListSubheader>
+        @if (Main != null && Main.Blogs.Data.Any())
+        {
+            @foreach (var blog in Main.Blogs.Data.ToList())
+            {
+                <MudListItem T="@blog" Text="@blog.Title" Icon="@(blog.Type switch
+                                                                {
+                                                                    BlogType.System => Icons.Material.Filled.AllInclusive,
+                                                                    BlogType.Wellbeing => Icons.Material.Filled.AccessibilityNew,
+                                                                    _ => Icons.Material.Filled.Newspaper
+                                                                    })" IconColor="Color.Default" IconSize="Size.Large" OnClick="@(async () => await HandleBlogSelect(blog))"/>
+            }
+        }
+    </MudList>
+    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="LoadMoreBlogs"></MudIconButton>
+    <MudIconButton Icon="@Icons.Material.Filled.AdminPanelSettings" OnClick="CreateBlog"></MudIconButton>
+    @* <MudPagination Color="Color.Primary" Count="@Main.Blogs.TotalPages" Selected="@Main.BlogPage" Class="d-flex justify-content-center"></MudPagination> *@
+</MudPaper>
+
+@code {
+
+    private async Task HandleBlogSelect(BlogDto blog)
+    {
+        _selectedValue = blog;
+        await OnBlogSelect.InvokeAsync(blog.Id);
+        StateHasChanged();
+    }
+    
+    [Parameter]
+    public EventCallback CreateBlog { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnBlogSelect { get; set; }
+
+    [Parameter]
+    public EventCallback LoadMoreBlogs { get; set; }
+
+    private MudListItem? _selectedItem = new();
+    private object _selectedValue = 1;
+
+}

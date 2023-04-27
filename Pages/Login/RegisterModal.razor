@@ -42,7 +42,7 @@
                                                       Required="true" RequiredError="Surname is required." ErrorText="Surname is required."/>
                                         <MudTextField T="string" Label="Email" @bind-Value="_userRegisterRequestDto.EmailAddress"
                                                       Required="true" RequiredError="Email is required." ErrorText="Email is required."
-                                                      Validation="@(new EmailAddressAttribute { ErrorMessage = "The email address is invalid." })"/>
+                                                      Validation="@(new EmailAddressAttribute {ErrorMessage = "The email address is invalid."})"/>
                                         <MudTextField T="string" Label="Password" @bind-Value="@_userRegisterRequestDto.Password"
                                                       Required="true" HelperText="Choose a strong password (at least 1 number and special character)"
                                                       RequiredError="Password is required." ErrorText="Password is required." InputType="InputType.Password"
@@ -81,7 +81,7 @@
         try
         {
             var user = await AuthClient.CreateUserAsync(_userRegisterRequestDto);
-            await ((CustomAuthenticationStateProvider)AuthenticationStateProvider).SetAuthenticationStateAsync(user.Data);
+            await ((CustomAuthenticationStateProvider) AuthenticationStateProvider).SetAuthenticationStateAsync(user.Data);
             if (NavigationManager.TryGetQueryString<string>("redirect", out var redirect))
             {
                 if (redirect != null) NavigationManager.NavigateTo(redirect);
@@ -89,7 +89,7 @@
             else
             {
                 var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                var identity = (ClaimsIdentity?)authenticationState.User.Identity;
+                var identity = (ClaimsIdentity?) authenticationState.User.Identity;
                 if (identity is {IsAuthenticated: true })
                 {
                     var userInfo = new UserInfo(authenticationState);
@@ -127,7 +127,7 @@
 
     private bool _success;
     private bool _registering;
-    private string[] _errors = { };
+    private string[] _errors = {};
     private MudForm _form = new();
     private readonly UserRegisterRequestDto _userRegisterRequestDto = new();
 

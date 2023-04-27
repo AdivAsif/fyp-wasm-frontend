@@ -49,6 +49,14 @@
         alertify.error(message.toString());
     }
 </script>
+<script type="text/javascript">
+    function scrollToBottom(containerId) {
+        var container = document.getElementById(containerId);
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+</script>
 </body>
 
 </html>

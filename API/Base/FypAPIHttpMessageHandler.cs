@@ -1,16 +1,15 @@
-﻿using System.Net;
+﻿namespace FinalYearProjectWasmPortal.API.Base;
+
+using System.Net;
 using System.Net.Http.Headers;
 using Blazored.LocalStorage;
-using FinalYearProjectWasmPortal.Helpers;
 using Fyp.API;
+using Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 using Polly;
 using Polly.Retry;
-using APIException = FinalYearProjectWasmPortal.API.Exception.APIException;
-
-namespace FinalYearProjectWasmPortal.API.Base;
-
-using ApiException = APIException;
+using ApiException = Exception.APIException;
+using Exception = System.Exception;
 
 public class FypAPIHttpMessageHandler : DelegatingHandler
 {
@@ -31,11 +30,11 @@ public class FypAPIHttpMessageHandler : DelegatingHandler
         CancellationToken cancellationToken)
     {
         if (_authenticationStateProvider == null)
-            throw new System.Exception("AuthenticationStateProvider is null.");
+            throw new Exception("AuthenticationStateProvider is null.");
 
         try
         {
-            var authenticationState = await ((CustomAuthenticationStateProvider)_authenticationStateProvider)
+            var authenticationState = await ((CustomAuthenticationStateProvider) _authenticationStateProvider)
                 .GetAuthenticationStateAsync();
             var user = authenticationState.User;
             var bearerToken = user.Claims.FirstOrDefault(c => c.Type == Constants.Claims.AccessToken)?.Value;
@@ -73,12 +72,12 @@ public class FypAPIHttpMessageHandler : DelegatingHandler
             }, contextData: context);
 
             if (result.StatusCode == HttpStatusCode.Forbidden)
-                throw new System.Exception("Forbidden.");
+                throw new Exception("Forbidden.");
             return result;
         }
         catch (ApiException ex)
         {
-            throw new System.Exception(ex.Message);
+            throw new Exception(ex.Message);
         }
     }
 
@@ -88,7 +87,7 @@ public class FypAPIHttpMessageHandler : DelegatingHandler
         var refreshToken = context.GetRefreshToken();
 
         if (authClient == null || string.IsNullOrEmpty(refreshToken))
-            throw new System.Exception("Cannot retrieve refresh token.");
+            throw new Exception("Cannot retrieve refresh token.");
         try
         {
             var tokenResponse =
@@ -96,17 +95,17 @@ public class FypAPIHttpMessageHandler : DelegatingHandler
 
             if (tokenResponse.Success)
             {
-                await ((CustomAuthenticationStateProvider)_authenticationStateProvider).SetAuthenticationStateAsync(
+                await ((CustomAuthenticationStateProvider) _authenticationStateProvider).SetAuthenticationStateAsync(
                     tokenResponse.Data);
                 return tokenResponse.Data.AccessToken;
             }
         }
-        catch (Fyp.API.APIException ex)
+        catch (APIException ex)
         {
-            await ((CustomAuthenticationStateProvider)_authenticationStateProvider).ClearAuthenticationStateAsync();
-            throw new System.Exception(ex.Message);
+            await ((CustomAuthenticationStateProvider) _authenticationStateProvider).ClearAuthenticationStateAsync();
+            throw new Exception(ex.Message);
         }
 
-        throw new System.Exception("Cannot retrieve refresh token.");
+        throw new Exception("Cannot retrieve refresh token.");
     }
 }

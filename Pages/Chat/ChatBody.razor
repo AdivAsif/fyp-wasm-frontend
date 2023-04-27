@@ -1,14 +1,15 @@
 ﻿@inject IChatClient ChatClient
+@inject IJSRuntime JsRuntime
+@using Microsoft.AspNetCore.SignalR.Client
 @using Fyp.API
 @using FinalYearProjectWasmPortal.Helpers
 @inherits ChatComponentBase
 
 <MudPaper Class="py-4 flex-grow-1" Elevation="25">
-    <div class="d-flex flex-column px-4" style="max-height: 60vh; min-height: 60vh; overflow: scroll" id="chatContainer">
+    <div class="d-flex flex-column px-4" style="max-height: 50vh; min-height: 50vh; overflow: scroll" id="chatContainer">
         @if (Main != null && !Main.ChatRooms.Data.Any())
         {
             <div class="d-flex flex-row my-4">
-
                 <div>
                     <MudText Typo="Typo.h5">You have no matches yet, check the Match page!</MudText>
                 </div>
@@ -16,39 +17,82 @@
         }
         else
         {
-            @foreach (var message in ListOfMessages)
+            @foreach (var group in GenerateMessageGroups())
             {
                 <div class="d-flex flex-row my-4">
                     <div class="mr-4">
                         <MudAvatar Color="Color.Secondary" Size="Size.Medium">
-                            @message.Username[0]
+                            @if (Main?.SelectedRoom?.FromUserId == group.First().UserId && !string.IsNullOrWhiteSpace(Main?.SelectedRoom?.FromUser.ProfileDetails.ProfilePictureUrl))
+                            {
+                                <MudImage Src="@(Main?.SelectedRoom?.FromUser.ProfileDetails.ProfilePictureUrl)" Class="avatar-image"></MudImage>
+                            }
+                            else if (Main?.SelectedRoom?.ToUserId == group.First().UserId && !string.IsNullOrWhiteSpace(Main?.SelectedRoom?.ToUser.ProfileDetails.ProfilePictureUrl))
+                            {
+                                <MudImage Src="@(Main?.SelectedRoom?.ToUser.ProfileDetails.ProfilePictureUrl)" Class="avatar-image"></MudImage>
+                            }
+                            else
+                            {
+                                @group.First().Username[0]
+                            }
                         </MudAvatar>
                     </div>
-                    <div>
-                        <MudText Typo="Typo.body1">@message.Username</MudText>
-                        <MudText Typo="Typo.caption">@message.Timestamp.GetValueOrDefault().ToString("dd MM yyyy hh:mm tt")</MudText>
-                        <MudText Typo="Typo.body2">@message.Content</MudText>
+                    <div style="width: 100%">
+                        <MudText Typo="Typo.body1">@group.First().Username</MudText>
+                        <div class="d-flex flex-column">
+                            @foreach (var message in group)
+                            {
+                                <div class="message-container @(message.Content.Length > 50 ? "long-text" : "")">
+                                    <MudText Typo="Typo.body2">@message.Content</MudText>
+                                    <MudText Typo="Typo.caption" Class="timestamp">@message.Timestamp.GetValueOrDefault().ToString("dd/MM/yyyy hh:mm tt")</MudText>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             }
         }
     </div>
-    <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
+    <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4 chat-container" Style="">
+        @if (Main is {IsTyping.Typing: true } && Main.IsTyping.FromUserId != Main.UserInfo?.UserId)
+        {
+            <MudPaper class="typing-indicator-container">
+                <MudText Typo="Typo.body2" Class="typing-name">
+                    @Main.IsTyping.FromUsername
+                </MudText>
+                <div class="typing-indicator ml-2">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </MudPaper>
+        }
         <MudTextField T="string" Placeholder="Enter your message..." DisableUnderLine="true" Class="mt-n2 mx-4"
-                      @bind-Value="NewMessage.Content" @bind-Value:event="oninput" OnKeyDown="Typing"/>
-        <MudButton OnClick="SendMessage" StartIcon="@Icons.Material.Outlined.Send" Color="Color.Secondary" ButtonType="ButtonType.Button">Send</MudButton>
+                      @bind-Value="NewMessage.Content" OnKeyDown="@(async e => await TextFieldDown(e))"/>
+        <MudButton OnClick="@(async () => await SendMessage())" StartIcon="@Icons.Material.Outlined.Send" Color="Color.Secondary" ButtonType="ButtonType.Button" Disabled="_sending">Send</MudButton>
     </MudPaper>
 </MudPaper>
 
 @code {
 
-    private async Task SendMessage()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task SendMessage(KeyboardEventArgs? e = null)
+    {
+        if (e != null)
+            if (e.Code != "Enter" && e.Code != "NumpadEnter") return;
         _sending = true;
         try
         {
             if (string.IsNullOrWhiteSpace(NewMessage.Content))
+            {
                 return;
+            }
 
             if (Main is {SelectedRoom: null })
             {
@@ -61,6 +105,8 @@
             {
                 NewMessage.RoomId = Main!.SelectedRoom.Id;
                 await ChatClient.SendMessageAsync(NewMessage);
+                await ScrollToBottom();
+                NewMessage.Content = string.Empty;
             }
         }
         catch (APIException ex)
@@ -69,31 +115,157 @@
         }
         finally
         {
-            NewMessage.Content = string.Empty;
-            if (Main is {SelectedRoom: not null })
-            {
-                await ChatClient.TypingAsync(new TypingDto { RoomId = Main.SelectedRoom.Id, Typing = false });
-            }
             _sending = false;
             StateHasChanged();
         }
+    }
+
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    private async Task TextFieldDown(KeyboardEventArgs e)
+    {
+        if (Main is { SelectedRoom: null })
+            return;
+
+        if (e.Code is "Enter" or "NumpadEnter" && !string.IsNullOrWhiteSpace(NewMessage.Content))
+        {
+            await SendMessage(e);
+        }
+
+        var typing = !string.IsNullOrWhiteSpace(e.Code);
+        if (Main is { Connection: not null })
+        {
+            await Main.Connection.InvokeAsync("Typing",
+                Main.SelectedRoom.Id,
+                Main.UserInfo?.UserId,
+                Main.UserInfo?.Username,
+                Main.SelectedRoom.ToUserId,
+                Main.SelectedRoom.ToUser.Username,
+                typing);
+
+            await _typingDelayCancellationTokenSource.CancelAsync();
+            if (typing)
+            {
+                _typingDelayCancellationTokenSource = new CancellationTokenSource();
+
+                try
+                {
+                    await Task.Delay(2000, _typingDelayCancellationTokenSource.Token);
+                    await Main.Connection.InvokeAsync("Typing",
+                        Main.SelectedRoom.Id,
+                        Main.UserInfo?.UserId,
+                        Main.UserInfo?.Username,
+                        Main.SelectedRoom.ToUserId,
+                        Main.SelectedRoom.ToUser.Username,
+                        false);
+                }
+                catch (TaskCanceledException)
+                {
+                }
+            }
+        }
+        StateHasChanged();
     }
 
     public async Task Typing(KeyboardEventArgs e)
     {
         if (Main is {SelectedRoom: null })
             return;
-        if (e.Code is "Enter" or "NumpadEnter")
-            await SendMessage();
-        if (string.IsNullOrWhiteSpace(e.Code))
-            await ChatClient.TypingAsync(new TypingDto { RoomId = Main!.SelectedRoom.Id, Typing = false });
-        else
-            await ChatClient.TypingAsync(new TypingDto { RoomId = Main!.SelectedRoom.Id, Typing = true });
+        var typing = !string.IsNullOrWhiteSpace(e.Code);
+        if (Main is {Connection: not null })
+        {
+            await Main.Connection.InvokeAsync("Typing",
+                Main.SelectedRoom.Id,
+                Main.UserInfo?.UserId,
+                Main.UserInfo?.Username,
+                Main.SelectedRoom.ToUserId,
+                Main.SelectedRoom.ToUser.Username,
+                typing);
+
+            await _typingDelayCancellationTokenSource.CancelAsync();
+            if (typing)
+            {
+                _typingDelayCancellationTokenSource = new CancellationTokenSource();
+
+                try
+                {
+                    await Task.Delay(2000, _typingDelayCancellationTokenSource.Token);
+                    await Main.Connection.InvokeAsync("Typing",
+                        Main.SelectedRoom.Id,
+                        Main.UserInfo?.UserId,
+                        Main.UserInfo?.Username,
+                        Main.SelectedRoom.ToUserId,
+                        Main.SelectedRoom.ToUser.Username,
+                        false);
+                }
+                catch (TaskCanceledException)
+                {
+                }
+            }
+        }
+        StateHasChanged();
     }
 
-    public void Refresh()
+    private void UpdateContent(ChangeEventArgs e)
     {
+        NewMessage.Content = e.Value?.ToString();
+    }
+
+    private void ShowTimestamp(Guid messageId)
+    {
+        _visibleTimestampId = messageId;
         StateHasChanged();
+    }
+
+    private void HideTimestamp(Guid messageId)
+    {
+        _visibleTimestampId = new Guid();
+        StateHasChanged();
+    }
+
+    private async Task ScrollToBottom()
+    {
+        await JsRuntime.InvokeVoidAsync("scrollToBottom", "chatContainer");
+    }
+
+    private List<List<ChatMessageDto>> GenerateMessageGroups()
+    {
+        var groups = new List<List<ChatMessageDto>>();
+        var currentGroup = new List<ChatMessageDto>();
+        ChatMessageDto? previousMessage = null;
+        var threshold = TimeSpan.FromMinutes(2);
+
+        foreach (var message in ListOfMessages)
+        {
+            if (previousMessage == null)
+            {
+                currentGroup.Add(message);
+            }
+            else
+            {
+                if (message.UserId == previousMessage.UserId && message.Timestamp - previousMessage.Timestamp <= threshold)
+                {
+                    currentGroup.Add(message);
+                }
+                else
+                {
+                    groups.Add(currentGroup);
+                    currentGroup = new List<ChatMessageDto> {message};
+                }
+            }
+
+            previousMessage = message;
+        }
+
+        if (currentGroup.Any())
+        {
+            groups.Add(currentGroup);
+        }
+
+        return groups;
     }
 
     [Parameter]
@@ -113,5 +285,8 @@
 
     public ChatMessageDto NewMessage { get; set; } = new();
     public bool _sending;
+
+    private CancellationTokenSource _typingDelayCancellationTokenSource = new();
+    private Guid _visibleTimestampId;
 
 }

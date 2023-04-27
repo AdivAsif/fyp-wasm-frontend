@@ -3935,22 +3935,20 @@ namespace Fyp.API
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class BlogDto
     {
-        [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Title { get; set; }
 
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public BlogType Type { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("content", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
+        [Newtonsoft.Json.JsonProperty("content", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Content { get; set; }
 
         [Newtonsoft.Json.JsonProperty("userId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int UserId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public User User { get; set; }
+        public UserDto User { get; set; }
 
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid Id { get; set; }
@@ -4015,11 +4013,11 @@ namespace Fyp.API
     public enum BlogType
     {
 
-        _0 = 0,
+        System = 0,
 
-        _1 = 1,
+        Wellbeing = 1,
 
-        _2 = 2,
+        News = 2,
 
     }
 
@@ -4344,11 +4342,11 @@ namespace Fyp.API
     public enum MessageType
     {
 
-        _0 = 0,
+        Message = 0,
 
-        _1 = 1,
+        Attachment = 1,
 
-        _2 = 2,
+        System = 2,
 
     }
 
@@ -4522,9 +4520,9 @@ namespace Fyp.API
     public enum SortDirection
     {
 
-        _0 = 0,
+        Asc = 0,
 
-        _1 = 1,
+        Desc = 1,
 
     }
 
@@ -4548,11 +4546,17 @@ namespace Fyp.API
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class TypingDto
     {
-        [Newtonsoft.Json.JsonProperty("userId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? UserId { get; set; }
+        [Newtonsoft.Json.JsonProperty("toUserId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? ToUserId { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("user", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string User { get; set; }
+        [Newtonsoft.Json.JsonProperty("toUsername", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ToUsername { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("fromUserId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? FromUserId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("fromUsername", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string FromUsername { get; set; }
 
         [Newtonsoft.Json.JsonProperty("roomId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid RoomId { get; set; }

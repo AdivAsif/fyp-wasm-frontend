@@ -1,8 +1,8 @@
-﻿using System.Text;
+﻿namespace FinalYearProjectWasmPortal.Helpers;
+
+using System.Text;
 using Fyp.API;
 using Newtonsoft.Json;
-
-namespace FinalYearProjectWasmPortal.Helpers;
 
 public static class ErrorHelper
 {
@@ -28,7 +28,7 @@ public static class ErrorHelper
                     };
 
                     foreach (var error in apiError.Errors)
-                        unwrappedError.Errors.Add(new ErrorDetails { Message = string.Join(", ", error.Value) });
+                        unwrappedError.Errors.Add(new ErrorDetails {Message = string.Join(", ", error.Value)});
                 }
             }
             else
@@ -42,9 +42,9 @@ public static class ErrorHelper
                 try
                 {
                     foreach (var error in
-                             ((APIException<BadRequestObjectResultResponseEnvelope>)apiException).Result
+                             ((APIException<BadRequestObjectResultResponseEnvelope>) apiException).Result
                              .Errors)
-                        unwrappedError.Errors.Add(new ErrorDetails { Message = string.Join(", ", error.Data) });
+                        unwrappedError.Errors.Add(new ErrorDetails {Message = string.Join(", ", error.Data)});
                 }
                 catch
                 {
@@ -58,7 +58,7 @@ public static class ErrorHelper
             Success = false,
             Errors = new List<ErrorDetails>
             {
-                new() { Message = exception.Message }
+                new() {Message = exception.Message}
             }
         };
     }

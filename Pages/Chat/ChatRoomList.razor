@@ -1,7 +1,5 @@
 ﻿@using Fyp.API
-@using FinalYearProjectWasmPortal.Services
 @inherits ChatComponentBase
-@inject IChatClient ChatClient
 
 <MudPaper Class="pa-4">
     <MudList Clickable="true" @bind-SelectedItem="_selectedItem" @bind-SelectedValue="_selectedValue">
@@ -33,9 +31,6 @@
 
     [Parameter]
     public EventCallback LoadMoreChatRooms { get; set; }
-
-    [CascadingParameter]
-    public UserInfo? UserInfo { get; set; }
 
     private MudListItem? _selectedItem = new();
     private object _selectedValue = 1;

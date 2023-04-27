@@ -1,6 +1,6 @@
-﻿using Fyp.API;
+﻿namespace FinalYearProjectWasmPortal.Services;
 
-namespace FinalYearProjectWasmPortal.Services;
+using Fyp.API;
 
 public class AppState
 {

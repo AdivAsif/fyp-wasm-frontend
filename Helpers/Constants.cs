@@ -16,12 +16,12 @@ public static class Constants
 
     public static Dictionary<string, string> Moods = new()
     {
-        { "Happy", "Sad" },
-        { "Excited", "Bored" },
-        { "Confident", "Insecure" },
-        { "Relaxed", "Stressed" },
-        { "Peaceful", "Angry" },
-        { "Prideful", "Shameful" }
+        {"Happy", "Sad"},
+        {"Excited", "Bored"},
+        {"Confident", "Insecure"},
+        {"Relaxed", "Stressed"},
+        {"Peaceful", "Angry"},
+        {"Prideful", "Shameful"}
     };
 
     public static class HttpClientNames

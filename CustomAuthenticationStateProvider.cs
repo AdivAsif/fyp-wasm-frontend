@@ -1,13 +1,13 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿namespace FinalYearProjectWasmPortal;
+
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Blazored.LocalStorage;
-using FinalYearProjectWasmPortal.Helpers;
 using Fyp.API;
+using Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 using Claim = System.Security.Claims.Claim;
 using ClaimsIdentity = System.Security.Claims.ClaimsIdentity;
-
-namespace FinalYearProjectWasmPortal;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {

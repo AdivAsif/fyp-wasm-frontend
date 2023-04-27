@@ -1,8 +1,8 @@
-@inject NavigationManager NavigationManager
-@inject IMatchingClient MatchingClient
-@using Fyp.API
+﻿@inject IBlogClient BlogClient
 @using FinalYearProjectWasmPortal.Helpers
-@inherits MatchModalBase
+@using Fyp.API
+@using APIException = FinalYearProjectWasmPortal.API.Exception.APIException
+@inherits BlogModalBase
 
 <div class="modal modal-backdrop modal-background" role="dialog" style="padding: 0; display: @ModalDisplay;">
     <div style="height: 100%; width: 100%; position: absolute" @onclick="Close"></div>
@@ -33,18 +33,28 @@
                                 <MudPaper Class="pa-4">
                                     <div class="d-flex align-center justify-space-between flex-column">
                                         <MudCardHeader>
-                                            Enter your first message to send them!
+                                            Create a new Blog
                                         </MudCardHeader>
                                     </div>
-                                    <MudForm @ref="_form" @bind-IsValid="_success">
-                                        <MudTextField T="string" Label="Message" Required="true"
-                                                      RequiredError="Enter a valid message." ErrorText="Message is required."
-                                                      @bind-Value="Message.Content" HelperTextOnFocus="true" HelperText="Send your first message!"/>
+                                    <MudForm @ref="_form" Model="NewBlog" @bind-IsValid="_success">
+                                        <MudTextField T="string" Label="Title" Required="true"
+                                                      RequiredError="Enter a valid title." ErrorText="Title is required."
+                                                      @bind-Value="NewBlog.Title" HelperTextOnFocus="true" HelperText="Enter the title of the blog."/>
+                                        <MudSelect T="string" Label="Type" AnchorOrigin="Origin.BottomCenter" Value="@(NewBlog.Type.ToString())">
+                                            <MudSelectItem Value="@("Please select a type...")" Disabled="true"></MudSelectItem>
+                                            @foreach (var type in Enum.GetValues(typeof(BlogType)).Cast<BlogType>().ToList())
+                                            {
+                                                <MudSelectItem Value="@type.ToString()" OnClick="@(() => SelectBlogType(type))"/>
+                                            }
+                                        </MudSelect>
+                                        <MudTextField T="string" Label="Content" Required="true"
+                                                      RequiredError="Enter a valid body." ErrorText="Body is required."
+                                                      @bind-Value="NewBlog.Content" HelperTextOnFocus="true" HelperText="Enter the body of the blog."/>
                                         <div class="d-flex align-center justify-content-center">
                                             <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                                                       Disabled="@(!_success || _matching)" OnClick="MatchUser"
+                                                       Disabled="@(!_success || _uploading)" OnClick="CreateOrUpdateBlog"
                                                        Class="text-center">
-                                                Match with @Match?.FirstName!
+                                                Create Blog
                                             </MudButton>
                                         </div>
                                     </MudForm>
@@ -60,21 +70,20 @@
 
 @code {
 
-    public async Task Initialise(UserDto match)
+    public async Task Initialise()
     {
-        Match = match;
-        ModalTitle = $"Match with {Match.Username}?";
+        ModalTitle = "Create a new Blog";
         StateHasChanged();
     }
 
-    private async Task MatchUser()
+    private async Task CreateOrUpdateBlog()
     {
-        _matching = true;
+        _uploading = true;
         try
         {
-            var createdRoom = await MatchingClient.MatchUserAsync(Match?.Id, Message);
-            await DisplaySuccess("Matched with user, redirecting to chat room.");
-            NavigationManager.NavigateTo($"/Chat?{createdRoom.Data.Id}");
+            await BlogClient.CreateOrUpdateBlogAsync(NewBlog);
+            await DisplaySuccess("Successfully created blog.");
+            Close();
         }
         catch (APIException ex)
         {
@@ -82,14 +91,19 @@
         }
         finally
         {
-            _matching = false;
+            _uploading = false;
+            StateHasChanged();
         }
     }
 
+    private void SelectBlogType(BlogType type)
+    {
+        NewBlog.Type = type;
+    }
+
     private MudForm _form = new();
+    private bool _uploading;
     private bool _success;
-    private bool _matching;
-    private UserDto? Match { get; set; }
-    private ChatMessageDto? Message { get; set; } = new();
+    private BlogDto NewBlog { get; set; } = new();
 
 }

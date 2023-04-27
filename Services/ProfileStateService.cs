@@ -1,10 +1,10 @@
-using Fyp.API;
-
 namespace FinalYearProjectWasmPortal.Services;
+
+using Fyp.API;
 
 public class ProfileStateService
 {
-    private IProfileClient _profileClient;
+    private readonly IProfileClient _profileClient;
     private ProfileInfo? _profileInfo;
 
     public ProfileStateService(IProfileClient profileClient)
@@ -18,7 +18,7 @@ public class ProfileStateService
     {
         if (_profileInfo != null) return _profileInfo;
         var profileFromApi = await _profileClient.GetProfileAsync();
-        _profileInfo = new ProfileInfo { ProfileDetails = profileFromApi.Data.ProfileDetails };
+        _profileInfo = new ProfileInfo {ProfileDetails = profileFromApi.Data.ProfileDetails};
 
         return _profileInfo;
     }

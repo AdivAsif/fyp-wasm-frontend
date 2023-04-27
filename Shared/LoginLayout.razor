@@ -29,7 +29,7 @@
     private async Task Authenticate()
     {
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var identity = (ClaimsIdentity)authenticationState.User.Identity!;
+        var identity = (ClaimsIdentity) authenticationState.User.Identity!;
         if (identity.IsAuthenticated)
             UserInfo = new UserInfo(authenticationState);
         else

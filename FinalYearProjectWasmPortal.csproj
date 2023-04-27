@@ -10,7 +10,10 @@
 
     <Target Name="NSwag" Outputs="@(OutputFiles)" Condition="'$(Configuration)' == 'API'" BeforeTargets="BeforeBuild">
         <Exec Command="$(NSwagExe_Net70) run API/NswagConfig/fyp-client-config.nswag"/>
-        <Exec Command="cd API &amp;&amp; cat FypAPI.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAPI.cs"/>
+        <!-- Mac command -->
+        <!--        <Exec Command="cd API &amp;&amp; cat FypAPI.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAPI.cs" /> -->
+        <!-- Windows command -->
+        <Exec Command="&#xD;&#xA;cd API&#xD;&#xA;copy /b FypAPI.cs +,,&#xD;&#xA;"/>
     </Target>
 
     <ItemGroup>
@@ -41,8 +44,8 @@
     <ItemGroup>
         <Folder Include="Middleware\"/>
         <Folder Include="Pages\Admin\"/>
-        <Folder Include="Pages\Blog\"/>
         <Folder Include="Pages\Settings\"/>
+        <Folder Include="wwwroot\blog\"/>
     </ItemGroup>
 
 </Project>

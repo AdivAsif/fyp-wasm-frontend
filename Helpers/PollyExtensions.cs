@@ -1,7 +1,7 @@
-﻿using Fyp.API;
-using Polly;
+﻿namespace FinalYearProjectWasmPortal.Helpers;
 
-namespace FinalYearProjectWasmPortal.Helpers;
+using Fyp.API;
+using Polly;
 
 public static class PollyExtensions
 {

@@ -183,7 +183,7 @@
                 var profileAsync = await ProfileClient.GetProfileAsync();
                 Profile = profileAsync.Data;
                 _dob = Profile.ProfileDetails?.DateOfBirth.GetValueOrDefault().Date;
-                await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo { ProfileDetails = Profile.ProfileDetails });
+                await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo {ProfileDetails = Profile.ProfileDetails});
             }
             else
             {
@@ -213,7 +213,7 @@
                 NewDetails.DateOfBirth = _dob;
                 var profileAsync = await ProfileClient.CreateOrUpdateProfileDetailsAsync(NewDetails);
                 Profile = profileAsync.Data;
-                await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo { ProfileDetails = Profile.ProfileDetails });
+                await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo {ProfileDetails = Profile.ProfileDetails});
                 await DisplaySuccess("Profile successfully updated.");
             }
             else
@@ -222,7 +222,7 @@
                 var profileAsync = await ProfileClient.CreateOrUpdateProfileDetailsAsync(Profile.ProfileDetails);
                 _uploading = true;
                 Profile = profileAsync.Data;
-                await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo { ProfileDetails = Profile.ProfileDetails });
+                await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo {ProfileDetails = Profile.ProfileDetails});
                 _uploading = false;
                 await DisplaySuccess("Profile successfully updated.");
             }
@@ -251,7 +251,7 @@
             {
                 Profile.ProfileDetails.ProfilePictureUrl = profile.Data.ProfilePictureUrl;
             }
-            await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo { ProfileDetails = Profile.ProfileDetails });
+            await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo {ProfileDetails = Profile.ProfileDetails});
             _profilePictureFile = null;
             await DisplaySuccess("Successfully uploaded profile picture.");
         }
@@ -281,7 +281,7 @@
             {
                 Profile.ProfileDetails.BannerUrl = profile.Data.BannerUrl;
             }
-            await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo { ProfileDetails = Profile.ProfileDetails });
+            await ProfileStateService.UpdateProfileInfoAsync(new ProfileInfo {ProfileDetails = Profile.ProfileDetails});
             _bannerPictureFile = null;
             await DisplaySuccess("Successfully uploaded banner.");
         }
@@ -341,5 +341,5 @@
     private FileParameter? _bannerPictureFile;
     private string? _uploadedProfilePictureUri;
     private string? _uploadedBannerPictureUri;
-    private bool _uploading = false;
+    private bool _uploading;
 }

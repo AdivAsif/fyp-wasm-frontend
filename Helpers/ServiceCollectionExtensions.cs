@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-using FinalYearProjectWasmPortal.API;
-using FinalYearProjectWasmPortal.API.Base;
+﻿namespace FinalYearProjectWasmPortal.Helpers;
 
-namespace FinalYearProjectWasmPortal.Helpers;
+using System.Reflection;
+using API;
+using API.Base;
 
 public static class ServiceCollectionExtensions
 {
@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
         Type clientImplementation, MethodInfo addHttpClientMethodInfo, string baseUrl)
     {
         var addHttpClientMethod = addHttpClientMethodInfo.MakeGenericMethod(clientInterface, clientImplementation);
-        var t = addHttpClientMethod.Invoke(null, new object[] { services, GetHttpClientConfig(baseUrl) });
+        var t = addHttpClientMethod.Invoke(null, new object[] {services, GetHttpClientConfig(baseUrl)});
         (t as IHttpClientBuilder).AddHttpMessageHandler<FypAPIHttpMessageHandler>();
 
         return services;

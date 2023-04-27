@@ -1,0 +1,109 @@
+﻿@page "/Blog"
+@inject NavigationManager NavigationManager
+@using FinalYearProjectWasmPortal.Services
+@using Fyp.API
+@using FinalYearProjectWasmPortal.Helpers
+@inherits BlogComponentBase
+@inject IBlogClient BlogClient
+
+<CascadingValue Value="this">
+    <MudContainer MaxWidth="MaxWidth.Large">
+        @if (IsLoading)
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="12">
+                    <MudPaper Class="pa-4 m-4" Style="text-align: center">
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        }
+        else
+        {
+            <BlogUploadModal @ref="_blogUploadModal"></BlogUploadModal>
+            <MudGrid>
+                <MudItem xs="4" sm="4">
+                    <BlogList CreateBlog="OpenCreateBlogModal" OnBlogSelect="OnBlogSelect" LoadMoreBlogs="LoadMoreBlogs"></BlogList>
+                </MudItem>
+                <MudItem xs="8" sm="8">
+                    <BlogBody ToggleRoomList="ToggleBlogList"></BlogBody>
+                </MudItem>
+            </MudGrid>
+        }
+    </MudContainer>
+</CascadingValue>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        StartLoading();
+        try
+        {
+            BlogPage = 1;
+            var blogsResponse = await BlogClient.GetBlogsAsync(BlogPage, BlogPageSize);
+            Blogs = blogsResponse.Data;
+        }
+        catch (APIException ex)
+        {
+            await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
+        }
+        StopLoading();
+    }
+
+    private async Task ToggleBlogList()
+    {
+        HideBlogList = !HideBlogList;
+        StateHasChanged();
+    }
+
+    private async Task OpenCreateBlogModal()
+    {
+        _blogUploadModal.Close();
+        await _blogUploadModal.Initialise();
+        _blogUploadModal.Open();
+    }
+
+    private async Task LoadMoreBlogs()
+    {
+        BlogPage += 1;
+        var blogsResponse = await BlogClient.GetBlogsAsync(BlogPage, BlogPageSize);
+        Blogs.TotalResults = blogsResponse.Data.TotalResults;
+        foreach (var blog in blogsResponse.Data.Data)
+        {
+            var existingBlog = Blogs.Data.FirstOrDefault(r => r.Id == blog.Id);
+            if (existingBlog != null)
+            {
+                existingBlog = blog;
+            }
+            else
+            {
+                Blogs.Data.Add(blog);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnBlogSelect(Guid blogId)
+    {
+        var blog = Blogs.Data.FirstOrDefault(r => r.Id == blogId);
+        SelectedBlog = blog;
+        StateHasChanged();
+    }
+
+    protected BlogBody BlogBody = new();
+
+    [CascadingParameter]
+    public UserInfo? UserInfo { get; set; }
+
+    public BlogDtoPagedResponse Blogs { get; set; } = new() {Data = new List<BlogDto>()};
+    public bool HideBlogList;
+    public BlogDto? SelectedBlog { get; set; }
+    public int BlogPageSize = 20;
+    public int BlogPage { get; set; } = 1;
+    public int BlogResultsPageAmount { get; set; } = 10;
+
+    private BlogUploadModal _blogUploadModal = new();
+
+}

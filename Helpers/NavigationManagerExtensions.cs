@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.WebUtilities;
+﻿namespace FinalYearProjectWasmPortal.Helpers;
 
-namespace FinalYearProjectWasmPortal.Helpers;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 
 public static class NavigationManagerExtensions
 {
@@ -13,19 +13,19 @@ public static class NavigationManagerExtensions
         {
             if (typeof(T) == typeof(int) && int.TryParse(valueFromQueryString, out var valueAsInt))
             {
-                value = (T)(object)valueAsInt;
+                value = (T) (object) valueAsInt;
                 return true;
             }
 
             if (typeof(T) == typeof(string))
             {
-                value = (T)(object)valueFromQueryString.ToString();
+                value = (T) (object) valueFromQueryString.ToString();
                 return true;
             }
 
             if (typeof(T) == typeof(decimal) && decimal.TryParse(valueFromQueryString, out var valueAsDecimal))
             {
-                value = (T)(object)valueAsDecimal;
+                value = (T) (object) valueAsDecimal;
                 return true;
             }
         }

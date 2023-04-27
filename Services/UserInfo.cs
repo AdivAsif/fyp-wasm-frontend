@@ -1,9 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using FinalYearProjectWasmPortal.Helpers;
-using Microsoft.AspNetCore.Components.Authorization;
+﻿namespace FinalYearProjectWasmPortal.Services;
 
-namespace FinalYearProjectWasmPortal.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Helpers;
+using Microsoft.AspNetCore.Components.Authorization;
 
 public class UserInfo
 {
@@ -34,7 +34,7 @@ public class UserInfo
 
     private static JwtSecurityToken? ReadToken(AuthenticationState authState)
     {
-        var identity = (ClaimsIdentity)authState.User.Identity!;
+        var identity = (ClaimsIdentity) authState.User.Identity!;
 
         var handler = new JwtSecurityTokenHandler();
         var accessToken = identity.Claims.FirstOrDefault(x => x.Type == Constants.Claims.AccessToken)?.Value;

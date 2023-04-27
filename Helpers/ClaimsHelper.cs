@@ -1,8 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿namespace FinalYearProjectWasmPortal.Helpers;
+
+using System.IdentityModel.Tokens.Jwt;
 using Fyp.API;
 using Microsoft.AspNetCore.Components.Authorization;
-
-namespace FinalYearProjectWasmPortal.Helpers;
 
 public static class ClaimsHelper
 {
@@ -46,7 +46,7 @@ public static class ClaimsHelper
         if (authState.User.Identity is null)
             return string.Empty;
 
-        var identity = (ClaimsIdentity)authState.User.Identity;
+        var identity = (ClaimsIdentity) authState.User.Identity;
 
         if (identity == null)
             return string.Empty;
@@ -61,7 +61,7 @@ public static class ClaimsHelper
     public static async Task RefreshToken(IAuthClient authClient,
         AuthenticationStateProvider authenticationStateProvider)
     {
-        var authenticationState = await ((CustomAuthenticationStateProvider)authenticationStateProvider)
+        var authenticationState = await ((CustomAuthenticationStateProvider) authenticationStateProvider)
             .GetAuthenticationStateAsync();
 
         var user = authenticationState.User;
@@ -74,12 +74,12 @@ public static class ClaimsHelper
                 var tokenResponse = await authClient.RefreshTokenAsync(refreshToken);
 
                 if (tokenResponse.Success)
-                    await ((CustomAuthenticationStateProvider)authenticationStateProvider).SetAuthenticationStateAsync(
+                    await ((CustomAuthenticationStateProvider) authenticationStateProvider).SetAuthenticationStateAsync(
                         tokenResponse.Data);
             }
             catch (APIException ex)
             {
-                await ((CustomAuthenticationStateProvider)authenticationStateProvider).ClearAuthenticationStateAsync();
+                await ((CustomAuthenticationStateProvider) authenticationStateProvider).ClearAuthenticationStateAsync();
                 throw new Exception(ex.Message);
             }
     }

@@ -1,0 +1,38 @@
+﻿@using Fyp.API
+@inherits BlogComponentBase
+
+<MudPaper Class="pa-4 flex-grow-1" Style="max-height: 65vh; min-height: 65vh; overflow: scroll;">
+    @if (Main != null && !Main.Blogs.Data.Any())
+    {
+        <div class="d-flex flex-row my-4">
+            <div>
+                <MudText Typo="Typo.h5">There are no blogs yet, wait for admins to create some.</MudText>
+            </div>
+        </div>
+    }
+    else
+    {
+        <MudGrid Class="position-relative">
+            <div class="d-flex justify-content-center blog-container blog-backdrop">
+                <MudImage Src="@(Main?.SelectedBlog?.Type switch
+                               {
+                                   BlogType.System => "blog/system.jpg",
+                                   BlogType.Wellbeing => "blog/wellbeing.jpg",
+                                   _ => "blog/news.jpg"
+                                   })" Alt="" Class="blog-backdrop">
+                </MudImage>
+            </div>
+        </MudGrid>
+    }
+    <MudDivider></MudDivider>
+    <MudText Typo="Typo.h3">@Main?.SelectedBlog?.Title</MudText>
+    <MudText Typo="Typo.body1">@Main?.SelectedBlog?.Content</MudText>
+    <MudText Typo="Typo.body2">Written by: @Main?.SelectedBlog?.User.Username</MudText>
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public EventCallback ToggleRoomList { get; set; }
+
+}

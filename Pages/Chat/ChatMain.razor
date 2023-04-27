@@ -67,6 +67,8 @@
         }
         if (SelectedRoom?.Id != null)
         {
+            if (Connection != null)
+                await Connection.InvokeAsync("JoinRoom", SelectedRoom?.Id);
             await GetMessagesForRoom(ChatMessageResultsPageAmount);
         }
         StateHasChanged();
@@ -80,22 +82,22 @@
             var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var bearerToken = authenticationState.User.Claims.FirstOrDefault(c => c.Type == Constants.Claims.AccessToken)?.Value;
             var hubUrl = Configuration.GetSection("AppSettings")["APIBaseUrl"] + "/ChatHub";
-            _connection = new HubConnectionBuilder().WithUrl(hubUrl, HttpTransportType.WebSockets, options =>
+            Connection = new HubConnectionBuilder().WithUrl(hubUrl, HttpTransportType.WebSockets, options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(bearerToken);
                 options.SkipNegotiation = true;
             })
                 .ConfigureLogging(logging => { logging.AddDebug(); }).Build();
-            _connection.Closed += async error =>
+            Connection.Closed += async error =>
             {
                 if (error != null && error.Message.Contains("401"))
                 {
                     await Task.Delay(new Random().Next(0, 5) * 1000);
-                    await _connection.StartAsync();
+                    await Connection.StartAsync();
                 }
             };
 
-            _connection.On<ChatMessageDto>("ReceiveMessage", async message =>
+            Connection.On<ChatMessageDto>("ReceiveMessage", async message =>
             {
                 var destinationChatRoom = ChatRooms.Data.FirstOrDefault(r => r.Id == message.RoomId);
                 if (destinationChatRoom != null)
@@ -119,7 +121,7 @@
                 StateHasChanged();
             });
 
-            _connection.On<ChatMessageReadDto>("MessageRead", messageRead =>
+            Connection.On<ChatMessageReadDto>("MessageRead", messageRead =>
             {
                 var destinationChatRoom = ChatRooms.Data.FirstOrDefault(r => r.Id == messageRead.RoomId);
                 if (destinationChatRoom != null)
@@ -131,7 +133,7 @@
                 StateHasChanged();
             });
 
-            _connection.On<ChatRoomDto>("RoomUpdate", async room =>
+            Connection.On<ChatRoomDto>("RoomUpdate", async room =>
             {
                 var destinationChatRoom = ChatRooms.Data.FirstOrDefault(r => r.Id == room.Id);
                 if (destinationChatRoom != null)
@@ -145,9 +147,9 @@
                 StateHasChanged();
             });
 
-            _connection.On<TypingDto>("Typing", typing =>
+            Connection.On<TypingDto>("Typing", typing =>
             {
-                if (SelectedRoom != null && SelectedRoom.Id == typing.RoomId && typing.UserId != UserInfo.UserId)
+                if (SelectedRoom != null && SelectedRoom.Id == typing.RoomId && typing.FromUserId != UserInfo?.UserId)
                 {
                     IsTyping = typing;
                 }
@@ -156,7 +158,7 @@
 
             try
             {
-                await _connection.StartAsync();
+                await Connection.StartAsync();
             }
             catch (APIException ex)
             {
@@ -175,7 +177,6 @@
         }
         catch (APIException ex)
         {
-            Console.WriteLine(ex.Message);
             await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
         }
         finally
@@ -262,10 +263,14 @@
 
     private async Task OnRoomSelect(Guid roomId)
     {
+        if (SelectedRoom != null && Connection != null && SelectedRoom.Id != roomId)
+            await Connection.InvokeAsync("LeaveRoom", roomId);
         var room = ChatRooms.Data.FirstOrDefault(r => r.Id == roomId);
+        if (Connection != null)
+            await Connection.InvokeAsync("JoinRoom", roomId);
         if (SelectedRoom != null)
         {
-            await ChatClient.TypingAsync(new TypingDto { RoomId = SelectedRoom.Id, Typing = false });
+            await ChatClient.TypingAsync(new TypingDto {RoomId = SelectedRoom.Id, Typing = false});
         }
         SelectedRoom = room;
         ChatBody.NewMessage.RoomId = roomId;
@@ -280,7 +285,7 @@
 
     void IDisposable.Dispose()
     {
-        _connection?.DisposeAsync();
+        Connection?.DisposeAsync();
     }
 
     protected ChatBody ChatBody = new();
@@ -290,15 +295,15 @@
 
     public ProfileInfo? ProfileInfo { get; set; }
     public TypingDto? IsTyping;
-    public ChatRoomDtoPagedResponse ChatRooms { get; set; } = new() { Data = new List<ChatRoomDto>() };
+    public ChatRoomDtoPagedResponse ChatRooms { get; set; } = new() {Data = new List<ChatRoomDto>()};
     public bool HideRoomList;
     public ChatRoomDto? SelectedRoom { get; set; }
     public int ChatRoomPageSize = 20;
     public int ChatRoomPage { get; set; } = 1;
     public int ChatMessageResultsPageAmount { get; set; } = 10;
     public Guid? RoomId { get; set; }
+    public HubConnection? Connection;
 
-    private HubConnection? _connection;
     private bool ShowOlderMessages { get; set; }
     private List<ChatMessageDto> ListOfMessages { get; set; } = new();
 

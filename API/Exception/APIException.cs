@@ -1,9 +1,11 @@
 ﻿namespace FinalYearProjectWasmPortal.API.Exception;
 
-public class APIException : System.Exception
+using Exception = System.Exception;
+
+public class APIException : Exception
 {
     public APIException(string message, int statusCode, string response,
-        IReadOnlyDictionary<string, IEnumerable<string>> headers, System.Exception innerException) : base(
+        IReadOnlyDictionary<string, IEnumerable<string>> headers, Exception innerException) : base(
         message + "\n\nStatus: " + statusCode + "\nResponse: \n" + response, innerException)
     {
         StatusCode = statusCode;
