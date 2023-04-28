@@ -3,13 +3,13 @@
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
-      "url": "https://localhost:7199/swagger/v1/swagger.json",
+      "url": "https://localhost:7064/swagger/v1/swagger.json",
       "output": null
     }
   },
   "codeGenerators": {
     "openApiToCSharpClient": {
-      "clientBaseClass": "FinalYearProjectWasmPortal.API.IAPIBase",
+      "clientBaseClass": "FinalYearProjectWasmPortal.API.IProfileBase",
       "configurationClass": null,
       "generateClientClasses": true,
       "generateClientInterfaces": true,
@@ -52,7 +52,7 @@
       "wrapResponseMethods": [],
       "generateResponseClasses": true,
       "responseClass": "SwaggerResponse",
-      "namespace": "Fyp.API",
+      "namespace": "Fyp.Profile",
       "requiredPropertiesMustBeDefined": true,
       "dateType": "System.DateTimeOffset",
       "jsonConverters": null,
@@ -87,7 +87,7 @@
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../FypAPI.cs"
+      "output": "../FypProfileMicroservice.cs"
     }
   }
 }

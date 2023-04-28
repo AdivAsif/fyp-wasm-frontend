@@ -28,6 +28,7 @@ public static class Constants
     {
         public const string ApiCache = "portal-cached-information";
         public const string ApiClient = "api-client";
+        public const string AuthClient = "auth-client";
     }
 
     public static class Claims

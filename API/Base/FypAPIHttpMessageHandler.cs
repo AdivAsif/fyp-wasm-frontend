@@ -3,7 +3,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using Blazored.LocalStorage;
-using Fyp.API;
+using Fyp.Auth;
 using Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 using Polly;

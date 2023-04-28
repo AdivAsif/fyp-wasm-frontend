@@ -1,6 +1,6 @@
 ﻿namespace FinalYearProjectWasmPortal.Helpers;
 
-using Fyp.API;
+using Fyp.Auth;
 using Polly;
 
 public static class PollyExtensions

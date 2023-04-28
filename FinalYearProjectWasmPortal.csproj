@@ -10,10 +10,14 @@
 
     <Target Name="NSwag" Outputs="@(OutputFiles)" Condition="'$(Configuration)' == 'API'" BeforeTargets="BeforeBuild">
         <Exec Command="$(NSwagExe_Net70) run API/NswagConfig/fyp-client-config.nswag"/>
+        <Exec Command="$(NSwagExe_Net70) run API/NswagConfig/fyp-auth-client-config.nswag"/>
+        <Exec Command="$(NSwagExe_Net70) run API/NswagConfig/fyp-profile-client-config.nswag"/>
         <!-- Mac command -->
-        <!--        <Exec Command="cd API &amp;&amp; cat FypAPI.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAPI.cs" /> -->
+        <Exec Command="cd API &amp;&amp; cat FypAPI.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAPI.cs"/>
+        <Exec Command="cd API &amp;&amp; cat FypAuthMicroservice.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAuthMicroservice.cs"/>
+        <Exec Command="cd API &amp;&amp; cat FypProfileMicroservice.cs &gt; tmpfile &amp;&amp; mv tmpfile FypProfileMicroservice.cs"/>
         <!-- Windows command -->
-        <Exec Command="&#xD;&#xA;cd API&#xD;&#xA;copy /b FypAPI.cs +,,&#xD;&#xA;"/>
+        <!--        <Exec Command="&#xD;&#xA;cd API&#xD;&#xA;copy /b FypAPI.cs +,,&#xD;&#xA;" />-->
     </Target>
 
     <ItemGroup>

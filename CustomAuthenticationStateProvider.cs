@@ -3,7 +3,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Blazored.LocalStorage;
-using Fyp.API;
+using Fyp.Auth;
 using Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 using Claim = System.Security.Claims.Claim;

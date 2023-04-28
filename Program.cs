@@ -13,7 +13,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+// builder.Services.AddScoped(sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddSingleton<ProfileStateService>();
@@ -21,8 +21,8 @@ builder.Services.AddScoped<AppState>();
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");
 var appSettings = appSettingsSection.Get<AppSettings>();
 
-builder.Services.AddHttpClientForApiAuth(appSettings.APIBaseUrl);
-builder.Services.AddGeneratedApiClients(appSettings.APIBaseUrl);
+builder.Services.AddHttpClientForApiAuth(appSettings.AuthMicroserviceBaseUrl);
+builder.Services.AddGeneratedApiClients(appSettings.AuthMicroserviceBaseUrl);
 
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();

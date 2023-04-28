@@ -1,7 +1,7 @@
 ﻿namespace FinalYearProjectWasmPortal.Helpers;
 
 using System.IdentityModel.Tokens.Jwt;
-using Fyp.API;
+using Fyp.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 
 public static class ClaimsHelper

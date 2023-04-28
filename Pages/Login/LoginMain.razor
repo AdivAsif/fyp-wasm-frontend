@@ -2,7 +2,7 @@
 @layout LoginLayout
 @using FinalYearProjectWasmPortal.Helpers
 @using FinalYearProjectWasmPortal.Services
-@using Fyp.API
+@using Fyp.Auth
 @using ClaimsIdentity = System.Security.Claims.ClaimsIdentity
 @using System.ComponentModel.DataAnnotations
 @inherits LoginComponentBase
@@ -42,12 +42,12 @@
                                           Required="true" RequiredError="Password is required." ErrorText="Password is required." InputType="InputType.Password"/>
                             <div class="d-flex align-center justify-space-between flex-column">
                                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="@(!_success || _loggingIn)"
-                                           @onclick="LoginUser" Class="text-center first-form-button">
+                                           OnClick="LoginUser" Class="text-center first-form-button">
                                     Login
                                 </MudButton>
-                                <a class="login-link" @onclick="OpenForgotPasswordModal" style="cursor: pointer">Forgot your password?</a>
+                                <a class="login-link" OnClick="OpenForgotPasswordModal" style="cursor: pointer">Forgot your password?</a>
                                 <hr class="login-line"/>
-                                <MudButton Variant="Variant.Filled" Color="Color.Tertiary" @onclick="OpenRegisterModal" Class="text-center">
+                                <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="OpenRegisterModal" Class="text-center">
                                     Register
                                 </MudButton>
                             </div>

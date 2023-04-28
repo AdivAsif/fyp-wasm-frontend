@@ -12,23 +12,45 @@ public static class ServiceCollectionExtensions
 
         var thisAssembly = Assembly.GetExecutingAssembly();
 
-        var apiClients = thisAssembly.GetTypes().Where(t => !t.IsInterface && typeof(IAPIBase).IsAssignableFrom(t));
+        var authClients = thisAssembly.GetTypes().Where(t => !t.IsInterface && typeof(IAuthBase).IsAssignableFrom(t));
 
-        foreach (var client in apiClients)
+        foreach (var client in authClients)
         {
-            var clientInterface = client.GetInterfaces().FirstOrDefault(i => i.Name != nameof(IAPIBase));
+            var clientInterface = client.GetInterfaces().FirstOrDefault(i => i.Name != nameof(IAuthBase));
             var methodInfo = GetAddHttpClientGenericMethod();
 
             if (clientInterface != null && methodInfo != null)
                 services.AddTypedHttpService(clientInterface, client, methodInfo, baseUrl);
         }
+        
+        var profileClients = thisAssembly.GetTypes().Where(t => !t.IsInterface && typeof(IProfileBase).IsAssignableFrom(t));
+
+        foreach (var client in profileClients)
+        {
+            var clientInterface = client.GetInterfaces().FirstOrDefault(i => i.Name != nameof(IProfileBase));
+            var methodInfo = GetAddHttpClientGenericMethod();
+
+            if (clientInterface != null && methodInfo != null)
+                services.AddTypedHttpService(clientInterface, client, methodInfo, baseUrl);
+        }
+        
+        // var apiClients = thisAssembly.GetTypes().Where(t => !t.IsInterface && typeof(IAPIBase).IsAssignableFrom(t));
+        //
+        // foreach (var client in apiClients)
+        // {
+        //     var clientInterface = client.GetInterfaces().FirstOrDefault(i => i.Name != nameof(IAPIBase));
+        //     var methodInfo = GetAddHttpClientGenericMethod();
+        //
+        //     if (clientInterface != null && methodInfo != null)
+        //         services.AddTypedHttpService(clientInterface, client, methodInfo, baseUrl);
+        // }
 
         return services;
     }
 
     public static IServiceCollection AddHttpClientForApiAuth(this IServiceCollection services, string baseUrl)
     {
-        services.AddHttpClient(Constants.HttpClientNames.ApiClient, GetHttpClientConfig(baseUrl));
+        services.AddHttpClient(Constants.HttpClientNames.AuthClient, GetHttpClientConfig(baseUrl));
         return services;
     }
 
