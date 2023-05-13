@@ -8,7 +8,7 @@
         <PublishIISAssets>true</PublishIISAssets>
     </PropertyGroup>
 
-    <Target Name="NSwag" Outputs="@(OutputFiles)" Condition="'$(Configuration)' == 'API'" BeforeTargets="BeforeBuild">
+    <Target Name="NSwag" Outputs="@(OutputFiles)" BeforeTargets="BeforeBuild">
         <Exec Command="$(NSwagExe_Net70) run API/NswagConfig/fyp-client-config.nswag"/>
         <!-- Mac command -->
         <!--        <Exec Command="cd API &amp;&amp; cat FypAPI.cs &gt; tmpfile &amp;&amp; mv tmpfile FypAPI.cs" /> -->

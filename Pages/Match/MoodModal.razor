@@ -8,7 +8,7 @@
 <div class="modal modal-backdrop modal-background" role="dialog" style="padding: 0; display: @ModalDisplay;">
     <div style="height: 100%; width: 100%; position: absolute" @onclick="Close"></div>
     <div class="modal-dialog modal-sm" style="display: table; vertical-align: middle">
-        <div class="modal-content" style="border-radius: 13px; padding: 13px; height: 80%; width: 60vw;">
+        <MudPaper class="modal-content" style="border-radius: 13px; padding: 13px; height: 80%; width: 60vw;">
             @if (IsLoading)
             {
                 <MudGrid>
@@ -50,7 +50,7 @@
                                         }
                                         <div class="d-flex align-center justify-content-center">
                                             <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                                                       Disabled="@(!_success)" @onclick="HandleMoodSet"
+                                                       Disabled="@(!_success)" OnClick="HandleMoodSet"
                                                        Class="text-center">
                                                 Set mood
                                             </MudButton>
@@ -62,7 +62,7 @@
                     </MudContainer>
                 </div>
             }
-        </div>
+        </MudPaper>
     </div>
 </div>
 
@@ -81,6 +81,7 @@
             Main.ProfileInfo.ProfileDetails.MoodSet = DateTimeOffset.Now;
             await ProfileClient.CreateOrUpdateProfileDetailsAsync(Main.ProfileInfo.ProfileDetails);
             await DisplaySuccess("Mood successfully set.");
+            await Close();
         }
         catch (APIException ex)
         {

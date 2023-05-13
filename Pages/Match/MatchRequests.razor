@@ -1,6 +1,4 @@
-@page "/Match"
-@inject IAuthClient AuthClient
-@inject IProfileClient ProfileClient
+﻿@page "/Requests"
 @inject IMatchClient MatchClient
 @inject NavigationManager NavigationManager
 @inject ProfileStateService ProfileStateService
@@ -24,13 +22,12 @@
         }
         else
         {
-            <MoodModal @ref="_moodModal"></MoodModal>
             <UserMatchModal @ref="_userMatchModal"></UserMatchModal>
             <MudGrid>
-                @if (!Matches.Any())
+                @if (!Requests.Any())
                 {
                     <MudItem xs="12">
-                        <MudAlert Severity="Severity.Info">No matches found, use existing chats or come back later.</MudAlert>
+                        <MudAlert Severity="Severity.Info">No requests found, use existing chats or come back later.</MudAlert>
                     </MudItem>
                     <MudItem xs="4">
                         <MudCard>
@@ -98,22 +95,22 @@
                 }
                 else
                 {
-                    @foreach (var match in Matches)
+                    @foreach (var request in Requests)
                     {
                         <MudItem xs="4">
-                            <MudCard Class="pa-4 position-relative custom-card" Style="height: 100%" @onclick="@(async () => await OpenUserMatchModal(match))">
+                            <MudCard Class="pa-4 position-relative custom-card" Style="height: 100%" @onclick="@(async () => await OpenUserMatchModal(request.FromUser))">
                                 <MudCardHeader>
                                     <MudGrid Class="position-relative">
                                         <div class="d-flex justify-content-center profile-avatar-container profile-backdrop">
-                                            <MudImage Src="@(match.ProfileDetails?.BannerUrl)" Alt="" Class="profile-backdrop"></MudImage>
+                                            <MudImage Src="@(request.FromUser?.ProfileDetails?.BannerUrl)" Alt="" Class="profile-backdrop"></MudImage>
                                         </div>
                                         <MudItem xs="3"></MudItem>
                                         <MudItem xs="6" Class="d-flex justify-content-center">
                                             <div class="profile-avatar-container">
                                                 <MudAvatar Color="Color.Primary" Style="width: 200px; height: 200px">
-                                                    @if (!string.IsNullOrWhiteSpace(match.ProfileDetails?.ProfilePictureUrl))
+                                                    @if (!string.IsNullOrWhiteSpace(request.FromUser?.ProfileDetails?.ProfilePictureUrl))
                                                     {
-                                                        <MudImage Src="@(match.ProfileDetails?.ProfilePictureUrl)" Alt=""></MudImage>
+                                                        <MudImage Src="@(request.FromUser?.ProfileDetails?.ProfilePictureUrl)" Alt=""></MudImage>
                                                     }
                                                     else
                                                     {
@@ -126,19 +123,21 @@
                                     </MudGrid>
                                 </MudCardHeader>
                                 <MudCardContent>
-                                    <MudText Typo="Typo.h5">@match.Username</MudText>
-                                    <MudText Typo="Typo.body1">They are feeling: @match.ProfileDetails.Mood</MudText>
+                                    <MudText Typo="Typo.h5">@request.FromUser?.Username</MudText>
+                                    <MudText Typo="Typo.body1">They are feeling: @request.FromUser?.ProfileDetails.Mood</MudText>
                                     <MudText Typo="Typo.h6">Biography:</MudText>
-                                    <MudText Typo="Typo.body2">@match.ProfileDetails.Biography</MudText>
+                                    <MudText Typo="Typo.body2">@request.FromUser?.ProfileDetails.Biography</MudText>
                                     <MudText Typo="Typo.h6">Information:</MudText>
-                                    <MudText Typo="Typo.body2">@match.ProfileDetails.Gender - @match.ProfileDetails.Pronoun</MudText>
-                                    <MudText Typo="Typo.body2">@match.ProfileDetails.DateOfBirth.GetValueOrDefault().ToString("dd/MM/yyyy")</MudText>
+                                    <MudText Typo="Typo.body2">@request.FromUser?.ProfileDetails.Gender - @request.FromUser?.ProfileDetails.Pronoun</MudText>
+                                    <MudText Typo="Typo.body2">@request.FromUser?.ProfileDetails.DateOfBirth.GetValueOrDefault().ToString("dd/MM/yyyy")</MudText>
+                                    <MudText Typo="Typo.h6">They said:</MudText>
+                                    <MudText Typo="Typo.body1">@request.FirstMessage</MudText>
                                 </MudCardContent>
                                 <MudCardActions Class="d-flex justify-content-center">
                                     <MudButtonGroup Class="position-absolute" Style="bottom: 0">
                                         <MudTooltip Placement="Placement.Top" Text="Match with this user">
                                             <MudIconButton Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Default"
-                                                           OnClick="@(async () => await OpenUserMatchModal(match))"/>
+                                                           OnClick="@(async () => await OpenUserMatchModal(request.FromUser))"/>
                                         </MudTooltip>
                                         <MudTooltip Placement="Placement.Top" Text="Skip this user">
                                             <MudIconButton Icon="@Icons.Material.Filled.Cancel" Color="Color.Error"/>
@@ -172,25 +171,18 @@
     {
         if (firstRender)
         {
-            if (string.IsNullOrWhiteSpace(ProfileInfo?.ProfileDetails?.Mood) || (DateTimeOffset.Now - ProfileInfo.ProfileDetails.MoodSet.GetValueOrDefault()).TotalHours >= 24)
-            {
-                await OpenMoodModal();
-            }
-            else
-            {
-                await GetMatches();
-            }
+            await GetRequests();
         }
     }
 
-    public async Task GetMatches()
+    public async Task GetRequests()
     {
         try
         {
-            var matches = await MatchClient.GetMatchesAsync();
-            Matches = matches.Data.ToList();
+            var requests = await MatchClient.GetMatchRequestsAsync();
+            Requests = requests.Data.ToList();
             StateHasChanged();
-            await DisplaySuccess("Matches found.");
+            await DisplaySuccess("Match requests found.");
         }
         catch (APIException ex)
         {
@@ -203,13 +195,6 @@
         ProfileStateService.OnChange -= StateHasChanged;
     }
 
-    private async Task OpenMoodModal()
-    {
-        _moodModal.Close();
-        await _moodModal.Initialise();
-        _moodModal.Open();
-    }
-
     private async Task OpenUserMatchModal(UserDto user)
     {
         _userMatchModal.Close();
@@ -220,10 +205,9 @@
     [CascadingParameter]
     public UserInfo? UserInfo { get; set; }
 
-    public List<UserDto> Matches { get; set; } = new();
+    public List<MatchDto> Requests { get; set; } = new();
     public ProfileInfo? ProfileInfo { get; set; }
 
-    private MoodModal _moodModal = new();
     private UserMatchModal _userMatchModal = new();
 
 }

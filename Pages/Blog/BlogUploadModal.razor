@@ -1,7 +1,7 @@
 ﻿@inject IBlogClient BlogClient
-@using FinalYearProjectWasmPortal.Helpers
 @using Fyp.API
 @using APIException = FinalYearProjectWasmPortal.API.Exception.APIException
+@using FinalYearProjectWasmPortal.Helpers
 @inherits BlogModalBase
 
 <div class="modal modal-backdrop modal-background" role="dialog" style="padding: 0; display: @ModalDisplay;">
@@ -40,11 +40,11 @@
                                         <MudTextField T="string" Label="Title" Required="true"
                                                       RequiredError="Enter a valid title." ErrorText="Title is required."
                                                       @bind-Value="NewBlog.Title" HelperTextOnFocus="true" HelperText="Enter the title of the blog."/>
-                                        <MudSelect T="string" Label="Type" AnchorOrigin="Origin.BottomCenter" Value="@(NewBlog.Type.ToString())">
+                                        <MudSelect T="string" Label="Type" AnchorOrigin="Origin.BottomCenter" Value="@(NewBlog.Type.ToString())" @onselect="@(e => SelectBlogType(Enum.Parse<BlogType>(e.ToString())))">
                                             <MudSelectItem Value="@("Please select a type...")" Disabled="true"></MudSelectItem>
                                             @foreach (var type in Enum.GetValues(typeof(BlogType)).Cast<BlogType>().ToList())
                                             {
-                                                <MudSelectItem Value="@type.ToString()" OnClick="@(() => SelectBlogType(type))"/>
+                                                <MudSelectItem Value="@type.ToString()"/>
                                             }
                                         </MudSelect>
                                         <MudTextField T="string" Label="Content" Required="true"
@@ -98,7 +98,8 @@
 
     private void SelectBlogType(BlogType type)
     {
-        NewBlog.Type = type;
+        Console.WriteLine(type);
+        NewBlog.Type = Enum.Parse<BlogType>(type.ToString());
     }
 
     private MudForm _form = new();

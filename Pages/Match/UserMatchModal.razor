@@ -1,5 +1,5 @@
 @inject NavigationManager NavigationManager
-@inject IMatchingClient MatchingClient
+@inject IMatchClient MatchClient
 @using Fyp.API
 @using FinalYearProjectWasmPortal.Helpers
 @inherits MatchModalBase
@@ -42,7 +42,7 @@
                                                       @bind-Value="Message.Content" HelperTextOnFocus="true" HelperText="Send your first message!"/>
                                         <div class="d-flex align-center justify-content-center">
                                             <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                                                       Disabled="@(!_success || _matching)" OnClick="MatchUser"
+                                                       Disabled="@(!_success || _matching)" OnClick="SendMatchRequest"
                                                        Class="text-center">
                                                 Match with @Match?.FirstName!
                                             </MudButton>
@@ -67,12 +67,42 @@
         StateHasChanged();
     }
 
+    private async Task SendMatchRequest()
+    {
+        _matching = true;
+        try
+        {
+            var response = await MatchClient.SendMatchRequestAsync(Match?.Id, Message?.Content);
+            if (response.Data.Matched && response.Data.ChatRoom != null)
+            {
+                NavigationManager.NavigateTo($"/Chat?{response.Data.ChatRoom.Id}");
+            }
+            else
+            {
+                await DisplaySuccess("Successfully sent match request to user.");
+                if (Main != null)
+                {
+                    await Main.GetMatches();
+                }
+                Close();
+            }
+        }
+        catch (APIException ex)
+        {
+            await DisplayError(ErrorHelper.UnwrapError(ex).ToString());
+        }
+        finally
+        {
+            _matching = false;
+        }
+    }
+
     private async Task MatchUser()
     {
         _matching = true;
         try
         {
-            var createdRoom = await MatchingClient.MatchUserAsync(Match?.Id, Message);
+            var createdRoom = await MatchClient.MatchUserAsync(Match?.Id, Message);
             await DisplaySuccess("Matched with user, redirecting to chat room.");
             NavigationManager.NavigateTo($"/Chat?{createdRoom.Data.Id}");
         }
