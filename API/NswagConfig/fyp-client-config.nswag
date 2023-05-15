@@ -3,7 +3,7 @@
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
-      "url": "https://localhost:44376/swagger/v1/swagger.json",
+      "url": "https://aa03980monolith.azurewebsites.net/swagger/v1/swagger.json",
       "output": null
     }
   },
