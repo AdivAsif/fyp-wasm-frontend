@@ -10,7 +10,7 @@
         {
             @foreach (var room in Main.ChatRooms.Data.ToList())
             {
-                <MudListItem T="@room" Text="@room.Name" Avatar="@room.ToUser.ProfileDetails.ProfilePictureUrl" OnClick="@(async () => await HandleChatSelect(room))"/>
+                <MudListItem T="@room" Text="@room.Name" OnClick="@(async () => await HandleChatSelect(room))"/>
             }
         }
     </MudList>

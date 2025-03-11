@@ -21,19 +21,13 @@
 <MudCarousel Style="height: 94vh; width: 100%" ShowArrows="@_arrows" ShowBullets="@_bullets" EnableSwipeGesture="@_enableSwipeGesture"
              AutoCycle="@_autocycle" TData="object">
     <MudCarouselItem Transition="_transition" Color="@Color.Primary">
-        <div class="d-flex" style="height: 100%;">
-            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large"/>
-        </div>
+        <MudImage Src="home/chat-screen.png" ObjectFit="ObjectFit.Contain"></MudImage>
     </MudCarouselItem>
     <MudCarouselItem Transition="_transition" Color="@Color.Secondary">
-        <div class="d-flex" style="height:100%">
-            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large"/>
-        </div>
+        <MudImage Src="home/match-screen.png" ObjectFit="ObjectFit.Contain"></MudImage>
     </MudCarouselItem>
     <MudCarouselItem Transition="_transition" Color="Color.Tertiary">
-        <div class="d-flex" style="height:100%">
-            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Color="@Color.Primary" Size="@Size.Large"/>
-        </div>
+        <MudImage Src="home/match-request-screen.png" ObjectFit="ObjectFit.Contain"></MudImage>
     </MudCarouselItem>
 </MudCarousel>
 
@@ -44,15 +38,6 @@
     private readonly bool _enableSwipeGesture = true;
     private readonly bool _autocycle = true;
     private readonly Transition _transition = Transition.Slide;
-
-    private List<UserDto> _allUsers = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        var listOfAllUsersAsync = await UsersClient.GetListOfAllUsersAsync();
-        _allUsers = listOfAllUsersAsync.ToList();
-        StateHasChanged();
-    }
 
     private void GoToLogin()
     {

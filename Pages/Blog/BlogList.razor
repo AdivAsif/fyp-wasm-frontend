@@ -10,12 +10,7 @@
         {
             @foreach (var blog in Main.Blogs.Data.ToList())
             {
-                <MudListItem T="@blog" Text="@blog.Title" Icon="@(blog.Type switch
-                                                                {
-                                                                    BlogType.System => Icons.Material.Filled.AllInclusive,
-                                                                    BlogType.Wellbeing => Icons.Material.Filled.AccessibilityNew,
-                                                                    _ => Icons.Material.Filled.Newspaper
-                                                                    })" IconColor="Color.Default" IconSize="Size.Large" OnClick="@(async () => await HandleBlogSelect(blog))"/>
+                <MudListItem T="@blog" Text="@blog.Title" Icon="@(blog.Type switch { BlogType.System => Icons.Material.Filled.AllInclusive, BlogType.Wellbeing => Icons.Material.Filled.AccessibilityNew, _ => Icons.Material.Filled.Newspaper })" IconColor="Color.Default" IconSize="Size.Large" OnClick="@(async () => await HandleBlogSelect(blog))"/>
             }
         }
     </MudList>
@@ -33,14 +28,11 @@
         StateHasChanged();
     }
 
-    [Parameter]
-    public EventCallback CreateBlog { get; set; }
+    [Parameter] public EventCallback CreateBlog { get; set; }
 
-    [Parameter]
-    public EventCallback<Guid> OnBlogSelect { get; set; }
+    [Parameter] public EventCallback<Guid> OnBlogSelect { get; set; }
 
-    [Parameter]
-    public EventCallback LoadMoreBlogs { get; set; }
+    [Parameter] public EventCallback LoadMoreBlogs { get; set; }
 
     private MudListItem? _selectedItem = new();
     private object _selectedValue = 1;
